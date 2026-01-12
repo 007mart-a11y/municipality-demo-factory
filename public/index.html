@@ -3,43 +3,61 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AI asistent obce Radim</title>
+  <title>AI asistent obce</title>
   <style>
     body { font-family: system-ui, -apple-system, Arial, sans-serif; margin: 0; background:#0b1220; color:#e8eefc; }
-    .wrap { max-width: 900px; margin: 0 auto; padding: 24px; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px; }
     .card { background:#0f1a33; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding: 18px; }
     h1 { margin: 0 0 8px; font-size: 22px; }
-    .sub { opacity:.8; margin: 0 0 16px; }
-    .chat { height: 55vh; overflow:auto; padding: 12px; background:#08102a; border-radius:14px; border:1px solid rgba(255,255,255,0.08); }
+    .sub { opacity:.85; margin: 0 0 14px; }
+    .chat { height: 56vh; overflow:auto; padding: 12px; background:#08102a; border-radius:14px; border:1px solid rgba(255,255,255,0.08); }
     .msg { margin: 10px 0; display:flex; }
     .msg.user { justify-content:flex-end; }
     .bubble { max-width: 80%; padding: 10px 12px; border-radius: 14px; line-height: 1.35; white-space: pre-wrap; }
     .user .bubble { background:#1a2a5a; border:1px solid rgba(0,229,255,0.35); }
     .ai .bubble { background:#101b3f; border:1px solid rgba(255,255,255,0.10); }
+
     .row { display:flex; gap:10px; margin-top: 12px; }
     input { flex:1; padding: 12px; border-radius: 12px; border:1px solid rgba(255,255,255,0.14); background:#071026; color:#e8eefc; outline:none; }
     button { padding: 12px 14px; border-radius: 12px; border:1px solid rgba(0,229,255,0.45); background:#0b244a; color:#e8eefc; cursor:pointer; }
     button:disabled { opacity:.6; cursor:not-allowed; }
-    .small { font-size: 12px; opacity: .7; margin-top: 10px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+
+    .small { font-size: 12px; opacity: .75; margin-top: 10px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;}
     a { color:#7fefff; text-decoration: none; }
-    .pill { padding:6px 10px; border:1px solid rgba(255,255,255,0.12); border-radius:999px; background:rgba(255,255,255,0.04); cursor:pointer; }
+
+    .pillbar { display:flex; gap:10px; flex-wrap:wrap; margin: 10px 0 8px; }
+    .pill { padding:6px 10px; border:1px solid rgba(255,255,255,0.12); border-radius:999px; background:rgba(255,255,255,0.04); cursor:pointer; user-select:none;}
+    .pill:hover { background:rgba(255,255,255,0.07); }
+
+    .toprow { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+    .badge { font-size: 12px; padding: 6px 10px; border-radius: 999px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); }
+    code { opacity: .9; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <h1>AI asistent obce Radim</h1>
-      <p class="sub">Zeptejte se na úřední hodiny, kontakty, odpady… (odpovědi jsou z podkladů obce).</p>
 
-      <div class="small">
+      <div class="toprow">
         <div>
-          <span class="pill" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
-          <span class="pill" data-q="Jaký je kontakt na obecní úřad?">Kontakt</span>
-          <span class="pill" data-q="Kde je skládka bioodpadu a kdy je otevřeno?">Bioodpad</span>
+          <h1 id="title">AI asistent obce</h1>
+          <p class="sub" id="subtitle">Zeptejte se na úřední hodiny, kontakty, odpady… (odpovědi jsou z podkladů obce).</p>
         </div>
-        <div>
-          <a href="javascript:void(0)" id="reset">Reset konverzace</a>
-        </div>
+        <div class="badge" id="badge">obec: <b id="slugLabel">radim</b></div>
+      </div>
+
+      <!-- Výběr obce -->
+      <div class="row" style="margin: 10px 0 8px;">
+        <input id="obec" type="text" placeholder="Slug obce (např. radim) nebo vlož odkaz s ?obec=..." />
+        <button id="apply">Použít obec</button>
+      </div>
+
+      <div class="pillbar">
+        <span class="pill" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
+        <span class="pill" data-q="Jaký je kontakt na obecní úřad?">Kontakt</span>
+        <span class="pill" data-q="Kde je skládka bioodpadu a kdy je otevřeno?">Bioodpad</span>
+        <span class="pill" data-q="Jak se platí poplatek za odpad?">Poplatek za odpad</span>
+        <span class="pill" id="reset">Reset konverzace</span>
       </div>
 
       <div id="chat" class="chat" aria-live="polite"></div>
@@ -53,6 +71,7 @@
         <div>Backend: <code>/.netlify/functions/search</code></div>
         <div id="status"></div>
       </div>
+
     </div>
   </div>
 
@@ -61,10 +80,39 @@
     const inp = document.getElementById('inp');
     const sendBtn = document.getElementById('send');
     const statusEl = document.getElementById('status');
-    const resetEl = document.getElementById('reset');
 
-    const THREAD_KEY = "radim_thread_id_v1";
-    let threadId = localStorage.getItem(THREAD_KEY) || null;
+    const titleEl = document.getElementById('title');
+    const subtitleEl = document.getElementById('subtitle');
+    const slugLabel = document.getElementById('slugLabel');
+
+    const obecInp = document.getElementById('obec');
+    const applyBtn = document.getElementById('apply');
+    const resetBtn = document.getElementById('reset');
+
+    function getParam(name) {
+      const u = new URL(window.location.href);
+      return u.searchParams.get(name);
+    }
+    function setParam(name, value) {
+      const u = new URL(window.location.href);
+      u.searchParams.set(name, value);
+      history.replaceState(null, "", u.toString());
+    }
+
+    function normalizeSlug(value) {
+      if (!value) return "";
+      // pokud uživatel vloží celý odkaz, zkus vytáhnout ?obec=
+      try {
+        if (value.startsWith("http://") || value.startsWith("https://")) {
+          const u = new URL(value);
+          const p = u.searchParams.get("obec");
+          if (p) value = p;
+        }
+      } catch {}
+      return value.toLowerCase().trim()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9\-]/g, "");
+    }
 
     function add(role, text) {
       const wrap = document.createElement('div');
@@ -75,6 +123,71 @@
       wrap.appendChild(b);
       chat.appendChild(wrap);
       chat.scrollTop = chat.scrollHeight;
+    }
+
+    // ---- Registry loading
+    async function loadRegistry() {
+      try {
+        // soubor může být v registry/municipalities.json
+        const res = await fetch('/registry/municipalities.json', { cache: 'no-store' });
+        if (!res.ok) return null;
+        return await res.json();
+      } catch {
+        return null;
+      }
+    }
+
+    function pickMunicipality(reg, slug) {
+      if (!reg) return null;
+
+      // Podpora různých struktur:
+      // 1) { municipalities: [ {slug, name, website...} ] }
+      // 2) [ {slug, name...} ]
+      // 3) { radim: {name...}, ... }
+      if (Array.isArray(reg)) {
+        return reg.find(m => m && (m.slug === slug || m.id === slug)) || null;
+      }
+      if (Array.isArray(reg.municipalities)) {
+        return reg.municipalities.find(m => m && (m.slug === slug || m.id === slug)) || null;
+      }
+      if (reg[slug]) return { slug, ...reg[slug] };
+      return null;
+    }
+
+    // ---- State
+    let slug = normalizeSlug(getParam("obec") || "radim");
+    setParam("obec", slug); // aby byl link sdílitelný
+
+    // thread_id ukládáme zvlášť pro každou obec
+    const THREAD_KEY = () => `municipality_thread_id_v1_${slug}`;
+    let threadId = localStorage.getItem(THREAD_KEY()) || null;
+
+    async function applyMunicipality(newSlug) {
+      slug = normalizeSlug(newSlug) || "radim";
+      setParam("obec", slug);
+      slugLabel.textContent = slug;
+      obecInp.value = slug;
+
+      // reset chatu + threadu (aby se nemíchaly obce)
+      chat.innerHTML = "";
+      threadId = null;
+      statusEl.textContent = "Načítám obec…";
+
+      // načti registry a nastav UI
+      const reg = await loadRegistry();
+      const m = pickMunicipality(reg, slug);
+
+      if (m?.name) {
+        titleEl.textContent = `AI asistent obce ${m.name}`;
+        subtitleEl.textContent = "Zeptejte se na úřední hodiny, kontakty, odpady… (odpovědi jsou z podkladů obce).";
+      } else {
+        titleEl.textContent = `AI asistent obce (${slug})`;
+        subtitleEl.textContent = "Obec není v registry – demo běží, ale doplň záznam do registry/municipalities.json.";
+      }
+
+      add('ai', `Dobrý den, jsem AI asistent obce ${m?.name || slug}. Na co se chcete zeptat?`);
+      statusEl.textContent = "Připraveno";
+      inp.focus();
     }
 
     async function ask(q) {
@@ -90,48 +203,57 @@
         const res = await fetch('/.netlify/functions/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: msg, thread_id: threadId })
+          body: JSON.stringify({
+            message: msg,
+            thread_id: threadId,
+            obec: slug // volitelně; backend může ignorovat
+          })
         });
+
         const data = await res.json();
 
         if (!data.ok) {
           add('ai', 'Chyba: ' + (data.error || 'Neznámá chyba'));
-          if (data.details) add('ai', JSON.stringify(data.details).slice(0, 600));
+          if (data.details) add('ai', JSON.stringify(data.details).slice(0, 900));
+          if (data.messagesData) add('ai', 'DEBUG: messagesData (zkráceno)\n' + JSON.stringify(data.messagesData).slice(0, 900));
         } else {
           add('ai', data.answer || '(prázdná odpověď)');
           if (data.thread_id) {
             threadId = data.thread_id;
-            localStorage.setItem(THREAD_KEY, threadId);
+            localStorage.setItem(THREAD_KEY(), threadId);
           }
         }
       } catch (e) {
         add('ai', 'Chyba spojení: ' + e.message);
       } finally {
         sendBtn.disabled = false;
-        statusEl.textContent = threadId ? ('thread_id uložen') : '';
+        statusEl.textContent = threadId ? 'thread_id uložen' : '';
         inp.focus();
       }
     }
 
+    // Events
     sendBtn.addEventListener('click', () => ask());
-    inp.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') ask();
-    });
-
-    resetEl.addEventListener('click', () => {
-      localStorage.removeItem(THREAD_KEY);
-      threadId = null;
-      chat.innerHTML = '';
-      statusEl.textContent = 'Resetováno';
-      inp.focus();
-    });
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') ask(); });
 
     document.querySelectorAll('[data-q]').forEach(el => {
       el.addEventListener('click', () => ask(el.getAttribute('data-q')));
     });
 
-    add('ai', 'Dobrý den, jsem AI asistent obce Radim. Na co se chcete zeptat?');
-    inp.focus();
+    applyBtn.addEventListener('click', () => applyMunicipality(obecInp.value));
+    obecInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') applyMunicipality(obecInp.value); });
+
+    resetBtn.addEventListener('click', () => {
+      localStorage.removeItem(THREAD_KEY());
+      threadId = null;
+      chat.innerHTML = '';
+      add('ai', `Resetováno. Zeptejte se znovu (obec: ${slug}).`);
+      statusEl.textContent = 'Resetováno';
+      inp.focus();
+    });
+
+    // Init
+    applyMunicipality(slug);
   </script>
 </body>
 </html>
