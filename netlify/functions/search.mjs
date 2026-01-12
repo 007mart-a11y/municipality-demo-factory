@@ -1,76 +1,141 @@
-import fs from "fs";
-import path from "path";
-
 export default async (request) => {
   try {
     if (request.method !== "POST") {
-      return new Response(
-        JSON.stringify({ ok: false, error: "Method Not Allowed" }),
-        { status: 405, headers: { "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ ok: false, error: "Method Not Allowed" }), {
+        status: 405,
+        headers: { "Content-Type": "application/json" }
+      });
     }
 
-    const { slug, message } = await request.json();
+    const { message, thread_id } = await request.json();
 
-    if (!slug || !message) {
-      return new Response(
-        JSON.stringify({ ok: false, error: "Missing slug or message" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    const kbPath = path.join(process.cwd(), "data", "kb", `${slug}.txt`);
-    let kbText = "";
-
-    if (fs.existsSync(kbPath)) {
-      kbText = fs.readFileSync(kbPath, "utf8");
-    } else {
-      kbText = `Podklady obce pro slug "${slug}" nebyly nalezeny.`;
+    if (!message) {
+      return new Response(JSON.stringify({ ok: false, error: "Missing message" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
+    const assistantId = process.env.ASSISTANT_ID;
+
+    if (!apiKey || !assistantId) {
       return new Response(
-        JSON.stringify({ ok: false, error: "Missing OPENAI_API_KEY" }),
+        JSON.stringify({
+          ok: false,
+          error: "Missing OPENAI_API_KEY or ASSISTANT_ID"
+        }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    const res = await fetch("https://api.openai.com/v1/responses", {
+    // 1️⃣ vytvoření nebo pokračování threadu
+    let currentThreadId = thread_id;
+
+    if (!currentThreadId) {
+      const threadRes = await fetch("https://api.openai.com/v1/threads", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      const threadData = await threadRes.json();
+      currentThreadId = threadData.id;
+    }
+
+    // 2️⃣ přidání zprávy uživatele
+    await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/messages`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-4.1-mini",
-        input: [
-          {
-            role: "system",
-            content:
-              "Jsi AI asistent obce. Odpovídej česky a pouze z poskytnutých podkladů. " +
-              "Pokud informace chybí, řekni: „Tohle v podkladech obce nemám.“"
-          },
-          {
-            role: "user",
-            content: `PODKLADY OBCE:\n${kbText}\n\nDOTAZ:\n${message}`
-          }
-        ]
+        role: "user",
+        content: message
       })
     });
 
-    const data = await res.json();
-    const answer =
-      data.output_text ||
-      "Omlouvám se, odpověď se nepodařilo vygenerovat.";
+    // 3️⃣ spuštění asistenta
+    const runRes = await fetch(
+      `https://api.openai.com/v1/threads/${currentThreadId}/runs`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          assistant_id: assistantId
+        })
+      }
+    );
 
-    return new Response(JSON.stringify({ ok: true, answer }), {
-      headers: { "Content-Type": "application/json" }
-    });
+    const runData = await runRes.json();
+    const runId = runData.id;
+
+    // 4️⃣ počkáme, až asistent doběhne
+    let status = "queued";
+    let attempts = 0;
+
+    while (status !== "completed" && attempts < 20) {
+      await new Promise((r) => setTimeout(r, 700));
+      attempts++;
+
+      const statusRes = await fetch(
+        `https://api.openai.com/v1/threads/${currentThreadId}/runs/${runId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${apiKey}`
+          }
+        }
+      );
+
+      const statusData = await statusRes.json();
+      status = statusData.status;
+
+      if (status === "failed") {
+        return new Response(
+          JSON.stringify({ ok: false, error: "Assistant run failed", details: statusData }),
+          { status: 500, headers: { "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    // 5️⃣ načtení odpovědi asistenta
+    const messagesRes = await fetch(
+      `https://api.openai.com/v1/threads/${currentThreadId}/messages`,
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`
+        }
+      }
+    );
+
+    const messagesData = await messagesRes.json();
+
+    const assistantMessage = messagesData.data.find(
+      (m) => m.role === "assistant"
+    );
+
+    const answer =
+      assistantMessage?.content?.[0]?.text?.value ||
+      "Omlouvám se, odpověď se nepodařilo získat.";
+
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        answer,
+        thread_id: currentThreadId
+      }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (err) {
-    return new Response(JSON.stringify({ ok: false, error: err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    return new Response(
+      JSON.stringify({ ok: false, error: err.message }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 };
