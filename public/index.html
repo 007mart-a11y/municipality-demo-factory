@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI asistent obce Radim</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Arial, sans-serif; margin: 0; background:#0b1220; color:#e8eefc; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 24px; }
+    .card { background:#0f1a33; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding: 18px; }
+    h1 { margin: 0 0 8px; font-size: 22px; }
+    .sub { opacity:.8; margin: 0 0 16px; }
+    .chat { height: 55vh; overflow:auto; padding: 12px; background:#08102a; border-radius:14px; border:1px solid rgba(255,255,255,0.08); }
+    .msg { margin: 10px 0; display:flex; }
+    .msg.user { justify-content:flex-end; }
+    .bubble { max-width: 80%; padding: 10px 12px; border-radius: 14px; line-height: 1.35; white-space: pre-wrap; }
+    .user .bubble { background:#1a2a5a; border:1px solid rgba(0,229,255,0.35); }
+    .ai .bubble { background:#101b3f; border:1px solid rgba(255,255,255,0.10); }
+    .row { display:flex; gap:10px; margin-top: 12px; }
+    input { flex:1; padding: 12px; border-radius: 12px; border:1px solid rgba(255,255,255,0.14); background:#071026; color:#e8eefc; outline:none; }
+    button { padding: 12px 14px; border-radius: 12px; border:1px solid rgba(0,229,255,0.45); background:#0b244a; color:#e8eefc; cursor:pointer; }
+    button:disabled { opacity:.6; cursor:not-allowed; }
+    .small { font-size: 12px; opacity: .7; margin-top: 10px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+    a { color:#7fefff; text-decoration: none; }
+    .pill { padding:6px 10px; border:1px solid rgba(255,255,255,0.12); border-radius:999px; background:rgba(255,255,255,0.04); cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>AI asistent obce Radim</h1>
+      <p class="sub">Zeptejte se na úřední hodiny, kontakty, odpady… (odpovědi jsou z podkladů obce).</p>
+
+      <div class="small">
+        <div>
+          <span class="pill" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
+          <span class="pill" data-q="Jaký je kontakt na obecní úřad?">Kontakt</span>
+          <span class="pill" data-q="Kde je skládka bioodpadu a kdy je otevřeno?">Bioodpad</span>
+        </div>
+        <div>
+          <a href="javascript:void(0)" id="reset">Reset konverzace</a>
+        </div>
+      </div>
+
+      <div id="chat" class="chat" aria-live="polite"></div>
+
+      <div class="row">
+        <input id="inp" type="text" placeholder="Napište dotaz…" />
+        <button id="send">Odeslat</button>
+      </div>
+
+      <div class="small">
+        <div>Backend: <code>/.netlify/functions/search</code></div>
+        <div id="status"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const inp = document.getElementById('inp');
+    const sendBtn = document.getElementById('send');
+    const statusEl = document.getElementById('status');
+    const resetEl = document.getElementById('reset');
+
+    const THREAD_KEY = "radim_thread_id_v1";
+    let threadId = localStorage.getItem(THREAD_KEY) || null;
+
+    function add(role, text) {
+      const wrap = document.createElement('div');
+      wrap.className = 'msg ' + (role === 'user' ? 'user' : 'ai');
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      b.textContent = text;
+      wrap.appendChild(b);
+      chat.appendChild(wrap);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function ask(q) {
+      const msg = (q ?? inp.value).trim();
+      if (!msg) return;
+
+      add('user', msg);
+      inp.value = '';
+      sendBtn.disabled = true;
+      statusEl.textContent = 'Generuje se odpověď…';
+
+      try {
+        const res = await fetch('/.netlify/functions/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg, thread_id: threadId })
+        });
+        const data = await res.json();
+
+        if (!data.ok) {
+          add('ai', 'Chyba: ' + (data.error || 'Neznámá chyba'));
+          if (data.details) add('ai', JSON.stringify(data.details).slice(0, 600));
+        } else {
+          add('ai', data.answer || '(prázdná odpověď)');
+          if (data.thread_id) {
+            threadId = data.thread_id;
+            localStorage.setItem(THREAD_KEY, threadId);
+          }
+        }
+      } catch (e) {
+        add('ai', 'Chyba spojení: ' + e.message);
+      } finally {
+        sendBtn.disabled = false;
+        statusEl.textContent = threadId ? ('thread_id uložen') : '';
+        inp.focus();
+      }
+    }
+
+    sendBtn.addEventListener('click', () => ask());
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') ask();
+    });
+
+    resetEl.addEventListener('click', () => {
+      localStorage.removeItem(THREAD_KEY);
+      threadId = null;
+      chat.innerHTML = '';
+      statusEl.textContent = 'Resetováno';
+      inp.focus();
+    });
+
+    document.querySelectorAll('[data-q]').forEach(el => {
+      el.addEventListener('click', () => ask(el.getAttribute('data-q')));
+    });
+
+    add('ai', 'Dobrý den, jsem AI asistent obce Radim. Na co se chcete zeptat?');
+    inp.focus();
+  </script>
+</body>
+</html>
