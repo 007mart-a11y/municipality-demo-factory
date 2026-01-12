@@ -1,19 +1,20 @@
 export default async (request) => {
   try {
+    // Povolit jen POST
     if (request.method !== "POST") {
-      return new Response(JSON.stringify({ ok: false, error: "Method Not Allowed" }), {
-        status: 405,
-        headers: { "Content-Type": "application/json" }
-      });
+      return new Response(
+        JSON.stringify({ ok: false, error: "Method Not Allowed" }),
+        { status: 405, headers: { "Content-Type": "application/json" } }
+      );
     }
 
     const { message, thread_id } = await request.json();
 
     if (!message) {
-      return new Response(JSON.stringify({ ok: false, error: "Missing message" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
+      return new Response(
+        JSON.stringify({ ok: false, error: "Missing message" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
@@ -29,7 +30,9 @@ export default async (request) => {
       );
     }
 
-    // 1️⃣ vytvoření nebo pokračování threadu
+    /* ===============================
+       1️⃣ THREAD – vytvořit / použít
+    =============================== */
     let currentThreadId = thread_id;
 
     if (!currentThreadId) {
@@ -45,20 +48,27 @@ export default async (request) => {
       currentThreadId = threadData.id;
     }
 
-    // 2️⃣ přidání zprávy uživatele
-    await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/messages`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        role: "user",
-        content: message
-      })
-    });
+    /* ===============================
+       2️⃣ Přidat zprávu uživatele
+    =============================== */
+    await fetch(
+      `https://api.openai.com/v1/threads/${currentThreadId}/messages`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          role: "user",
+          content: message
+        })
+      }
+    );
 
-    // 3️⃣ spuštění asistenta
+    /* ===============================
+       3️⃣ Spustit asistenta
+    =============================== */
     const runRes = await fetch(
       `https://api.openai.com/v1/threads/${currentThreadId}/runs`,
       {
@@ -76,11 +86,13 @@ export default async (request) => {
     const runData = await runRes.json();
     const runId = runData.id;
 
-    // 4️⃣ počkáme, až asistent doběhne
+    /* ===============================
+       4️⃣ Počkat na dokončení
+    =============================== */
     let status = "queued";
     let attempts = 0;
 
-    while (status !== "completed" && attempts < 20) {
+    while (status !== "completed" && attempts < 25) {
       await new Promise((r) => setTimeout(r, 700));
       attempts++;
 
@@ -98,13 +110,19 @@ export default async (request) => {
 
       if (status === "failed") {
         return new Response(
-          JSON.stringify({ ok: false, error: "Assistant run failed", details: statusData }),
+          JSON.stringify({
+            ok: false,
+            error: "Assistant run failed",
+            details: statusData
+          }),
           { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
     }
 
-    // 5️⃣ načtení odpovědi asistenta
+    /* ===============================
+       5️⃣ Načíst odpověď asistenta
+    =============================== */
     const messagesRes = await fetch(
       `https://api.openai.com/v1/threads/${currentThreadId}/messages`,
       {
@@ -116,14 +134,23 @@ export default async (request) => {
 
     const messagesData = await messagesRes.json();
 
-    const assistantMessage = messagesData.data.find(
-      (m) => m.role === "assistant"
-    );
+    let answer = "Omlouvám se, odpověď se nepodařilo získat.";
 
-    const answer =
-      assistantMessage?.content?.[0]?.text?.value ||
-      "Omlouvám se, odpověď se nepodařilo získat.";
+    if (Array.isArray(messagesData.data)) {
+      for (const msg of messagesData.data) {
+        if (msg.role === "assistant" && Array.isArray(msg.content)) {
+          const textBlock = msg.content.find((c) => c.type === "text");
+          if (textBlock?.text?.value) {
+            answer = textBlock.text.value;
+            break;
+          }
+        }
+      }
+    }
 
+    /* ===============================
+       6️⃣ Vrátit odpověď
+    =============================== */
     return new Response(
       JSON.stringify({
         ok: true,
