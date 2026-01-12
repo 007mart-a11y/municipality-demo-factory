@@ -1,0 +1,12 @@
+{
+  "radim": {
+    "slug": "radim",
+    "name": "Obec Radim",
+    "website_url": "https://www.obec-radim.cz/",
+    "logo_url": "https://www.obec-radim.cz/images/logo.png",
+    "theme": {
+      "primary": "#00E5FF",
+      "bg": "#071018"
+    }
+  }
+}
