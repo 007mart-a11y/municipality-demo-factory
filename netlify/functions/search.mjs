@@ -4,43 +4,38 @@ import path from "path";
 export default async (request) => {
   try {
     if (request.method !== "POST") {
-      return new Response(JSON.stringify({ ok: false, error: "Method Not Allowed" }), {
-        status: 405,
-        headers: { "Content-Type": "application/json" }
-      });
+      return new Response(
+        JSON.stringify({ ok: false, error: "Method Not Allowed" }),
+        { status: 405, headers: { "Content-Type": "application/json" } }
+      );
     }
 
     const { slug, message } = await request.json();
 
     if (!slug || !message) {
-      return new Response(JSON.stringify({ ok: false, error: "Missing slug or message" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
+      return new Response(
+        JSON.stringify({ ok: false, error: "Missing slug or message" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
     }
 
-    // Načteme KB soubor obce
     const kbPath = path.join(process.cwd(), "data", "kb", `${slug}.txt`);
     let kbText = "";
 
     if (fs.existsSync(kbPath)) {
       kbText = fs.readFileSync(kbPath, "utf8");
     } else {
-      kbText = `KB soubor pro slug "${slug}" nebyl nalezen.`;
+      kbText = `Podklady obce pro slug "${slug}" nebyly nalezeny.`;
     }
-
-    // Omezíme velikost kontextu (MVP)
-    const kbSlice = kbText.slice(0, 12000);
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      return new Response(JSON.stringify({ ok: false, error: "Missing OPENAI_API_KEY env var" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      });
+      return new Response(
+        JSON.stringify({ ok: false, error: "Missing OPENAI_API_KEY" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
     }
 
-    // Jednoduché volání Responses API (bez Assistants) – rychle a stabilně
     const res = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
@@ -53,7 +48,29 @@ export default async (request) => {
           {
             role: "system",
             content:
-              "Jsi AI asistent obce. Odpovídej česky. Používej pouze informace z podkladů. " +
-              "Když odpověď v podkladech není, řekni: „Tohle v podkladech obce nemám, pošlete mi prosím odkaz nebo upřesnění.“"
+              "Jsi AI asistent obce. Odpovídej česky a pouze z poskytnutých podkladů. " +
+              "Pokud informace chybí, řekni: „Tohle v podkladech obce nemám.“"
           },
-         
+          {
+            role: "user",
+            content: `PODKLADY OBCE:\n${kbText}\n\nDOTAZ:\n${message}`
+          }
+        ]
+      })
+    });
+
+    const data = await res.json();
+    const answer =
+      data.output_text ||
+      "Omlouvám se, odpověď se nepodařilo vygenerovat.";
+
+    return new Response(JSON.stringify({ ok: true, answer }), {
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ ok: false, error: err.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+};
