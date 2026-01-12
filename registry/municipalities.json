@@ -9,5 +9,16 @@
       "primary": "#00E5FF",
       "bg": "#071018"
     }
+  },
+  "zeleznice": {
+    "slug": "zeleznice",
+    "name": "Město Železnice",
+    "assistant_id": "asst_Ae1pVgczgcwww1q1FVMkkysy",
+    "website_url": "https://www.zeleznice.cz/",
+    "logo_url": "",
+    "theme": {
+      "primary": "#00E5FF",
+      "bg": "#071018"
+    }
   }
 }
