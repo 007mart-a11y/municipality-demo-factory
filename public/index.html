@@ -2,289 +2,469 @@
 <html lang="cs">
 <head>
   <meta charset="utf-8" />
-  <!-- iOS FIX: maximum-scale=1 + user-scalable=no + viewport-fit=cover -->
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>AI asistent obce – DEMO</title>
 
   <style>
     :root{
-      --bg:#0b1220;
-      --text:#e8eefc;
-      --muted:rgba(232,238,252,.72);
-      --border:rgba(255,255,255,.10);
       --accent:#00E5FF;
-      --shadow: 0 20px 55px rgba(0,0,0,.55);
+      --accentSoft: rgba(0,229,255,.18);
+      --text:#e8eefc;
+      --muted: rgba(232,238,252,.72);
+      --glass: rgba(10,16,28,.55);
+      --glass2: rgba(10,16,28,.35);
+      --stroke: rgba(255,255,255,.12);
+      --shadow: 0 24px 70px rgba(0,0,0,.55);
+      --radius: 18px;
     }
 
-    html, body { height: 100%; }
+    html,body{ height:100%; }
     body{
-      font-family: system-ui, -apple-system, Arial, sans-serif;
       margin:0;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 30% 0%, rgba(0,229,255,.10), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)),
-        var(--bg);
+      font-family: system-ui, -apple-system, Arial, sans-serif;
+      color: var(--text);
+      background: #0b1220;
       -webkit-text-size-adjust: 100%;
+      overflow-x: hidden;
     }
 
-    .wrap{ max-width: 980px; margin: 0 auto; padding: 24px; }
-    @media (max-width: 720px){
-      .wrap{ padding: 14px; }
+    /* ===== Page background (homepage screenshot) ===== */
+    .bg{
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(1200px 700px at 25% 0%, rgba(0,229,255,.14), transparent 60%),
+        radial-gradient(900px 600px at 80% 15%, rgba(255,255,255,.06), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)),
+        #0b1220;
+      z-index: 0;
+    }
+    .bg::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, rgba(11,18,32,.85), rgba(11,18,32,.45));
+      pointer-events:none;
+    }
+    .bgImg{
+      position:absolute; inset:0;
+      background-size: cover;
+      background-position: center;
+      filter: saturate(1.02) contrast(1.02);
+      opacity: .92;
+      transform: scale(1.02);
+    }
+    .bgVignette{
+      position:absolute; inset:0;
+      background: radial-gradient(1200px 900px at 30% 20%, transparent 40%, rgba(0,0,0,.55) 100%);
+      pointer-events:none;
     }
 
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid var(--border);
-      border-radius:18px;
-      padding: 18px;
+    /* ===== Top hint card (optional) ===== */
+    .hintWrap{
+      position: relative;
+      z-index: 1;
+      max-width: 1060px;
+      margin: 18px auto 0;
+      padding: 0 18px;
+    }
+    .hint{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      padding: 14px 16px;
+      border:1px solid var(--stroke);
+      border-radius: 16px;
+      background: rgba(10,16,28,.55);
+      backdrop-filter: blur(8px);
       box-shadow: var(--shadow);
     }
-
-    /* ======= CHAT HEADER ======= */
-    .chatHeader{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      padding: 10px 12px;
-      border:1px solid var(--border);
-      border-radius:16px;
-      background: rgba(0,0,0,.16);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      margin-bottom: 12px;
+    .hint .dot{
+      width: 38px; height: 38px;
+      border-radius: 14px;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(0,229,255,.12);
+      border: 1px solid rgba(0,229,255,.20);
+      flex: 0 0 auto;
+      font-weight: 900;
+    }
+    .hint .t{
+      min-width:0;
+    }
+    .hint .t .h{
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .hint .t .s{
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .hint code{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-size: 12px;
     }
 
-    .chLeft{
+    /* ===== Floating Tab "Poradíme vám" ===== */
+    .tab{
+      position: fixed;
+      right: 14px;
+      bottom: 22px;
+      z-index: 50;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(10,16,28,.62);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 50px rgba(0,0,0,.48);
+      cursor:pointer;
+      user-select:none;
+      transition: transform .15s ease, background .2s ease;
+    }
+    .tab:hover{ transform: translateY(-1px); background: rgba(10,16,28,.72); }
+
+    .tab .pill{
+      height: 34px;
+      padding: 0 14px;
+      border-radius: 999px;
+      display:flex;
+      align-items:center;
+      font-weight: 800;
+      background: linear-gradient(180deg, rgba(0,229,255,.18), rgba(0,229,255,.10));
+      border: 1px solid rgba(0,229,255,.25);
+    }
+    .tab .mini{
+      display:flex; flex-direction:column;
+      gap:2px;
+      line-height:1.1;
+      max-width: 220px;
+    }
+    .tab .mini .a{ font-weight: 800; font-size: 12px; }
+    .tab .mini .b{ font-size: 11px; color: var(--muted); white-space: nowrap; overflow:hidden; text-overflow: ellipsis; }
+
+    /* blink */
+    .tab.blink{
+      animation: pulse 1.8s infinite ease-in-out;
+    }
+    @keyframes pulse{
+      0%,100%{ box-shadow: 0 18px 50px rgba(0,0,0,.48); }
+      50%{ box-shadow: 0 18px 50px rgba(0,229,255,.22); }
+    }
+
+    /* ===== Chat Panel (Intercom-like) ===== */
+    .panel{
+      position: fixed;
+      right: 14px;
+      bottom: 14px;
+      width: 390px;
+      height: 620px;
+      max-height: calc(100dvh - 28px);
+      z-index: 60;
+
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(10,16,28,.62);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+
+      display:none;
+      overflow:hidden;
+    }
+    .panel.open{ display:flex; flex-direction:column; }
+
+    .panelHeader{
+      padding: 12px 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .phLeft{
       display:flex;
       align-items:center;
       gap:10px;
       min-width:0;
     }
-
-    .logoBox{
-      width: 36px;
-      height: 36px;
+    .badgeIcon{
+      width: 34px; height: 34px;
       border-radius: 12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background: rgba(0,229,255,.10);
-      border:1px solid rgba(0,229,255,.18);
-      font-size: 18px;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      font-weight: 900;
       flex:0 0 auto;
     }
-
-    .chTitleWrap{ min-width:0; }
-    .chTitle{
-      font-weight: 800;
+    .phTitleWrap{ min-width:0; }
+    .phTitle{
+      font-weight: 900;
       font-size: 13px;
-      letter-spacing: .2px;
       white-space: nowrap;
-      overflow: hidden;
+      overflow:hidden;
       text-overflow: ellipsis;
-      max-width: 560px;
+      max-width: 250px;
     }
-    .chSub{
+    .phSub{
+      margin-top: 2px;
       font-size: 12px;
       color: var(--muted);
-      margin-top: 2px;
       white-space: nowrap;
-      overflow: hidden;
+      overflow:hidden;
       text-overflow: ellipsis;
-      max-width: 560px;
+      max-width: 250px;
     }
-
-    .chRight{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex:0 0 auto;
-    }
-
-    .badge{
+    .phRight{ display:flex; align-items:center; gap:8px; }
+    .chip{
       font-size: 11px;
-      padding: 5px 9px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.06);
-      color: var(--text);
     }
-
-    .btnGhost{
-      font-size: 12px;
-      padding: 8px 10px;
+    .iconBtn{
+      width: 34px; height: 34px;
       border-radius: 12px;
-      border:1px solid rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.04);
       color: var(--text);
       cursor:pointer;
-      user-select:none;
-    }
-    .btnGhost:hover{ background: rgba(255,255,255,.07); }
-
-    /* ======= Pills ======= */
-    .pillbar{ display:flex; gap:10px; flex-wrap:wrap; margin: 8px 0 10px; }
-    .pill{
-      padding: 7px 10px;
-      border:1px solid rgba(255,255,255,0.12);
-      border-radius:999px;
-      background: rgba(255,255,255,0.04);
-      cursor:pointer;
-      user-select:none;
-      font-size: 12px;
-    }
-    .pill:hover{ background: rgba(255,255,255,0.07); }
-
-    /* ======= Chat: TRANSPARENT (bez rámečku) ======= */
-    .chat{
-      height: 58vh;
-      overflow:auto;
-      padding: 8px 2px;
-      background: transparent;     /* <- průhledný */
-      border: 0;                  /* <- bez rámečku */
-      border-radius: 0;
-    }
-
-    .msg{ margin: 10px 0; display:flex; }
-    .msg.user{ justify-content:flex-end; }
-
-    .bubble{
-      max-width: 86%;
-      padding: 10px 12px;
-      border-radius: 14px;
-      line-height: 1.35;
-      white-space: pre-wrap;
-      word-break: break-word;
+      display:flex; align-items:center; justify-content:center;
       font-size: 14px;
-      border:1px solid rgba(255,255,255,.12); /* rámeček jen na zprávách */
-      background: rgba(0,0,0,.18);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
     }
+    .iconBtn:hover{ background: rgba(255,255,255,.07); }
 
-    .user .bubble{
-      border-color: rgba(0,229,255,0.20);
-      background: rgba(0,229,255,.10);
-    }
-
-    .ai .bubble{
-      border-color: rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-    }
-
-    .bubble a{ color: var(--accent); text-decoration: none; }
-    .bubble a:hover{ text-decoration: underline; }
-
-    /* ======= Input ======= */
-    .row{
+    /* ===== Pills inside panel ===== */
+    .pillbar{
+      padding: 10px 12px 2px;
       display:flex;
-      gap:10px;
-      margin-top: 12px;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    input{
-      flex:1;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,0.14);
-      background: rgba(0,0,0,.20);
-      color: var(--text);
-      outline:none;
-
-      /* iOS FIX: musí být min. 16px, jinak Safari zoomuje */
-      font-size: 16px;
-      line-height: 1.2;
-
-      -webkit-appearance: none;
-      appearance: none;
-    }
-
-    button{
-      padding: 12px 14px;
-      border-radius: 14px;
-      border:1px solid rgba(0,229,255,0.35);
-      background: rgba(0,229,255,0.12);
-      color: var(--text);
-      cursor:pointer;
-      font-weight: 800;
-      min-width: 56px;
-    }
-    button:disabled{ opacity:.6; cursor:not-allowed; }
-
-    .footerHint{
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 10px;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
+      gap:8px;
       flex-wrap:wrap;
     }
+    .pill{
+      font-size: 12px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      cursor:pointer;
+      user-select:none;
+    }
+    .pill:hover{ background: rgba(255,255,255,.07); }
 
-    /* Na mobilu ať je chat víc “widget feel” */
-    @media (max-width: 720px){
-      .card{ padding: 14px; border-radius: 16px; }
-      .chat{ height: 60vh; }
-      .bubble{ max-width: 92%; }
-      .chTitle{ max-width: 220px; }
-      .chSub{ max-width: 220px; }
+    /* ===== Chat body (transparent, no frame) ===== */
+    .chat{
+      flex: 1 1 auto;
+      padding: 12px 12px 8px;
+      overflow:auto;
+      background: transparent;     /* <- důležité */
+    }
+
+    .msg{ display:flex; margin: 10px 0; }
+    .msg.user{ justify-content:flex-end; }
+    .bubble{
+      max-width: 84%;
+      padding: 10px 12px;
+      border-radius: 16px;
+      line-height: 1.35;
+      font-size: 13px;
+      word-break: break-word;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      box-shadow: 0 10px 30px rgba(0,0,0,.22);
+    }
+    .msg.ai .bubble{
+      border-color: rgba(0,229,255,.18);
+      background: rgba(0,229,255,.08);
+    }
+    .msg.user .bubble{
+      border-color: rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+    }
+    .bubble a{ color: var(--accent); text-decoration:none; }
+    .bubble a:hover{ text-decoration:underline; }
+
+    /* typing dots */
+    .typing{
+      display:inline-flex;
+      gap:6px;
+      align-items:center;
+    }
+    .typing span{
+      width: 7px; height: 7px;
+      border-radius: 999px;
+      background: rgba(232,238,252,.85);
+      opacity: .35;
+      animation: bounce 1s infinite ease-in-out;
+    }
+    .typing span:nth-child(2){ animation-delay: .12s; }
+    .typing span:nth-child(3){ animation-delay: .24s; }
+    @keyframes bounce{
+      0%, 100%{ transform: translateY(0); opacity: .35; }
+      50%{ transform: translateY(-4px); opacity: 1; }
+    }
+
+    /* feedback card */
+    .feedback{
+      max-width: 92%;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(10,16,28,.55);
+      backdrop-filter: blur(8px);
+    }
+    .feedback .q{ font-weight: 900; margin-bottom: 8px; }
+    .feedback .btns{ display:flex; gap:10px; }
+    .fbBtn{
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight: 800;
+      cursor:pointer;
+    }
+    .fbBtn.yes{
+      border-color: rgba(0,229,255,.25);
+      background: rgba(0,229,255,.10);
+    }
+    .fbBtn:hover{ background: rgba(255,255,255,.09); }
+
+    /* ===== Input row ===== */
+    .inputRow{
+      padding: 10px 12px 12px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03);
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .input{
+      flex: 1;
+      height: 44px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      outline:none;
+      font-size: 16px; /* <- fix iOS zoom */
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+    }
+    .send{
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,229,255,.28);
+      background: rgba(0,229,255,.12);
+      color: var(--text);
+      font-weight: 900;
+      cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      user-select:none;
+    }
+    .send:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .foot{
+      padding: 0 12px 10px;
+      font-size: 11px;
+      color: rgba(232,238,252,.58);
+    }
+
+    /* ===== Mobile ===== */
+    @media (max-width: 520px){
+      .panel{
+        right: 10px;
+        left: 10px;
+        width: auto;
+        height: calc(100dvh - 20px);
+        bottom: 10px;
+        border-radius: 18px;
+      }
+      .phTitle{ max-width: 190px; }
+      .phSub{ max-width: 190px; }
+      .tab{
+        right: 10px;
+        bottom: calc(14px + env(safe-area-inset-bottom));
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="card">
+  <div class="bg" aria-hidden="true">
+    <div class="bgImg" id="bgImg"></div>
+    <div class="bgVignette"></div>
+  </div>
 
-      <div class="chatHeader" role="banner">
-        <div class="chLeft">
-          <div class="logoBox" aria-hidden="true">AI</div>
-          <div class="chTitleWrap">
-            <div class="chTitle" id="headerTitle">Ukázka DEMO pro obec</div>
-            <div class="chSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny, odpady, poplatky…</div>
-          </div>
+  <div class="hintWrap">
+    <div class="hint">
+      <div class="dot">AI</div>
+      <div class="t">
+        <div class="h">AI asistent obce – DEMO</div>
+        <div class="s">
+          Otevřete chat přes boční lištu <b>„Poradíme vám“</b>. Přepnutí obce přes URL:
+          <code>?obec=hradec-kralove</code> / <code>?obec=radim</code> / <code>?obec=zeleznice</code>
         </div>
-        <div class="chRight">
-          <div class="badge">DEMO</div>
-          <button class="btnGhost" id="resetTop" type="button">Reset</button>
-        </div>
       </div>
-
-      <div class="pillbar">
-        <span class="pill" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
-        <span class="pill" data-q="Jaký je kontakt na městský/obecní úřad?">Kontakt</span>
-        <span class="pill" data-q="Kde je bioodpad a kdy je otevřeno?">Bioodpad</span>
-        <span class="pill" data-q="Jak se platí poplatek za odpad?">Poplatek za odpad</span>
-        <span class="pill" data-q="Kde na webu najdu úřední desku?">Úřední deska</span>
-      </div>
-
-      <div id="chat" class="chat" aria-live="polite"></div>
-
-      <div class="row">
-        <input
-          id="inp"
-          type="text"
-          placeholder="Napište dotaz…"
-          autocomplete="off"
-          autocapitalize="sentences"
-          spellcheck="false"
-          enterkeyhint="send"
-        />
-        <button id="send" type="button">➤</button>
-      </div>
-
-      <div class="footerHint">
-        <div id="status"></div>
-        <div style="opacity:.65;">Ukázka slouží pro představu fungování AI asistenta na webu obce.</div>
-      </div>
-
     </div>
   </div>
 
+  <!-- Boční lišta -->
+  <div class="tab blink" id="openTab" role="button" aria-label="Otevřít chat">
+    <div class="pill">Poradíme vám</div>
+    <div class="mini">
+      <div class="a" id="tabTitle">AI asistent obce</div>
+      <div class="b" id="tabSub">Klikněte a napište dotaz…</div>
+    </div>
+  </div>
+
+  <!-- Chat panel -->
+  <div class="panel" id="panel" aria-live="polite">
+    <div class="panelHeader">
+      <div class="phLeft">
+        <div class="badgeIcon" id="badgeIcon">AI</div>
+        <div class="phTitleWrap">
+          <div class="phTitle" id="headerTitle">Ukázka pro obec</div>
+          <div class="phSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny…</div>
+        </div>
+      </div>
+      <div class="phRight">
+        <div class="chip">DEMO</div>
+        <button class="iconBtn" id="resetBtn" title="Reset">↻</button>
+        <button class="iconBtn" id="closeBtn" title="Zavřít">✕</button>
+      </div>
+    </div>
+
+    <div class="pillbar">
+      <span class="pill" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
+      <span class="pill" data-q="Jaký je kontakt na úřad?">Kontakt</span>
+      <span class="pill" data-q="Kde je bioodpad a kdy je otevřeno?">Bioodpad</span>
+      <span class="pill" data-q="Jak se platí poplatek za odpad?">Poplatek za odpad</span>
+      <span class="pill" data-q="Kde na webu najdu úřední desku?">Úřední deska</span>
+    </div>
+
+    <div class="chat" id="chat"></div>
+
+    <div class="inputRow">
+      <input class="input" id="inp" type="text" placeholder="Napište dotaz…" autocomplete="off" />
+      <button class="send" id="send" type="button">➤</button>
+    </div>
+    <div class="foot" id="status"></div>
+  </div>
+
   <script>
+    const openTab = document.getElementById('openTab');
+    const panel = document.getElementById('panel');
+    const closeBtn = document.getElementById('closeBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
     const chat = document.getElementById('chat');
     const inp = document.getElementById('inp');
     const sendBtn = document.getElementById('send');
@@ -292,13 +472,17 @@
 
     const headerTitle = document.getElementById('headerTitle');
     const headerSub = document.getElementById('headerSub');
-    const resetTop = document.getElementById('resetTop');
+    const tabTitle = document.getElementById('tabTitle');
+    const tabSub = document.getElementById('tabSub');
+    const badgeIcon = document.getElementById('badgeIcon');
 
+    const bgImg = document.getElementById('bgImg');
+
+    // ===== Helpers =====
     function getParam(name) {
       const u = new URL(window.location.href);
       return u.searchParams.get(name);
     }
-
     function normalizeSlug(value) {
       if (!value) return "";
       return value.toLowerCase().trim()
@@ -306,13 +490,16 @@
         .replace(/[^a-z0-9\-]/g, "");
     }
 
-    function inferSlugFromUrl() {
+    // IMPORTANT: vždy preferuj ?obec= (a ignoruj /skins/ v path)
+    function inferSlug() {
+      const q = normalizeSlug(getParam("obec"));
+      if (q) return q;
+
       const parts = location.pathname.split('/').filter(Boolean).map(x => x.toLowerCase());
-      if (parts.length) {
-        if ((parts[0] === "demo" || parts[0] === "obec") && parts[1]) return normalizeSlug(parts[1]);
-        return normalizeSlug(parts[0]);
-      }
-      return normalizeSlug(getParam("obec") || "radim") || "radim";
+      if (!parts.length) return "radim";
+      if (parts[0] === "skins" || parts[0] === "registry") return "radim";
+      if ((parts[0] === "demo" || parts[0] === "obec") && parts[1]) return normalizeSlug(parts[1]);
+      return normalizeSlug(parts[0]) || "radim";
     }
 
     function linkify(text) {
@@ -323,25 +510,36 @@
       });
     }
 
-    function sanitizeAnswerFront(text){
-      if (!text) return text;
-      return String(text)
-        .replace(/【[^】]{1,200}】/g, "")
-        .replace(/^\s*(zdroj|zdroje|source|sources|citace|reference)s?\s*:.*$/gim, "")
-        .replace(/404|not found|cannot fetch|error fetching/gi, "")
-        .replace(/\n{3,}/g, "\n\n")
-        .trim();
-    }
-
-    function add(role, text) {
+    function add(role, htmlOrText, opts={}) {
       const wrap = document.createElement('div');
       wrap.className = 'msg ' + (role === 'user' ? 'user' : 'ai');
+
+      if (opts.type === "feedback") {
+        wrap.innerHTML = htmlOrText; // already sanitized by us
+      } else {
+        const b = document.createElement('div');
+        b.className = 'bubble';
+        b.innerHTML = linkify(htmlOrText);
+        wrap.appendChild(b);
+      }
+
+      chat.appendChild(wrap);
+      chat.scrollTop = chat.scrollHeight;
+      return wrap;
+    }
+
+    function addTyping() {
+      const wrap = document.createElement('div');
+      wrap.className = 'msg ai';
       const b = document.createElement('div');
       b.className = 'bubble';
-      b.innerHTML = linkify(text);
+      b.innerHTML = `<span class="typing" aria-label="Generuje se odpověď">
+        <span></span><span></span><span></span>
+      </span>`;
       wrap.appendChild(b);
       chat.appendChild(wrap);
       chat.scrollTop = chat.scrollHeight;
+      return wrap;
     }
 
     async function loadRegistry() {
@@ -362,66 +560,188 @@
       return null;
     }
 
-    let slug = inferSlugFromUrl();
+    function setAccent(color) {
+      if (!color) return;
+      document.documentElement.style.setProperty('--accent', color);
+      // jemný derivát
+      document.documentElement.style.setProperty('--accentSoft', 'rgba(0,229,255,.18)');
+    }
+
+    async function setBackgroundForSlug(slug) {
+      const candidates = [
+        `/skins/${slug}/bg.jpg`,
+        `/skins/${slug}.jpg`,
+        `/skins/${slug}/bg.png`,
+        `/skins/${slug}.png`,
+        `/skins/${slug}/bg.webp`,
+        `/skins/${slug}.webp`,
+      ];
+
+      for (const url of candidates) {
+        try {
+          const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+          if (r.ok) {
+            bgImg.style.backgroundImage = `url('${url}')`;
+            return;
+          }
+        } catch {}
+      }
+      // fallback gradient only
+      bgImg.style.backgroundImage = '';
+    }
+
+    // ---- State
+    let slug = inferSlug();
+
+    // thread_id ukládáme zvlášť pro každou obec
     const THREAD_KEY = () => `municipality_thread_id_v3_${slug}`;
     let threadId = localStorage.getItem(THREAD_KEY()) || null;
 
-    async function initMunicipality() {
-      statusEl.textContent = "";
+    let regCache = null;
+    let muni = null;
 
-      const reg = await loadRegistry();
-      const m = pickMunicipality(reg, slug);
-      const displayName = m?.name || slug;
+    // feedback after 2 questions
+    let userQCount = 0;
+    let feedbackShown = false;
 
-      headerTitle.textContent = `Ukázka DEMO pro obec: ${displayName}`;
+    function openPanel() {
+      panel.classList.add('open');
+      openTab.classList.remove('blink');
+      openTab.style.display = 'none';
+      setTimeout(() => inp.focus(), 50);
+    }
+    function closePanel() {
+      panel.classList.remove('open');
+      openTab.style.display = 'flex';
+      openTab.classList.add('blink');
+    }
+
+    function resetConversation() {
+      localStorage.removeItem(THREAD_KEY());
+      threadId = null;
+      userQCount = 0;
+      feedbackShown = false;
+      chat.innerHTML = '';
+      const name = muni?.name || slug;
+      add('ai', `Resetováno. Zeptejte se znovu (obec: ${name}).`);
+      inp.focus();
+    }
+
+    function showFeedbackCard() {
+      if (feedbackShown) return;
+      feedbackShown = true;
+
+      const phone = muni?.contact_phone || muni?.phone || muni?.tel || null;
+      const name = muni?.name || slug;
+
+      const html = `
+        <div class="feedback">
+          <div class="q">Našli jste odpověď?</div>
+          <div class="btns">
+            <button class="fbBtn yes" data-fb="yes">Ano</button>
+            <button class="fbBtn" data-fb="no">Ne</button>
+          </div>
+        </div>
+      `;
+
+      const wrap = add('ai', html, { type: "feedback" });
+
+      wrap.querySelectorAll('button[data-fb]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const v = btn.getAttribute('data-fb');
+
+          // disable both
+          wrap.querySelectorAll('button').forEach(b => b.disabled = true);
+
+          if (v === "yes") {
+            add('ai', `Super, jsem rád, že jsem pomohl ✅ Kdykoliv se zeptejte znovu.`);
+          } else {
+            const extra = phone
+              ? `Pokud chcete, obraťte se přímo na úřad (telefon: ${phone}).`
+              : `Pokud chcete, obraťte se přímo na úřad – kontakt najdete na oficiálním webu obce.`;
+            add('ai', `Mrzí mě to 🙏 Zkuste prosím dotaz upřesnit (např. uveďte konkrétní službu / místo / termín). ${extra}`);
+          }
+        });
+      });
+    }
+
+    async function init() {
+      regCache = await loadRegistry();
+      muni = pickMunicipality(regCache, slug);
+
+      const displayName = muni?.name || slug;
+
+      // UI labels
+      headerTitle.textContent = `Ukázka pro obec: ${displayName}`;
       headerSub.textContent = "Zeptejte se na kontakty, úřední hodiny, odpady, poplatky…";
 
+      tabTitle.textContent = displayName;
+      tabSub.textContent = "Klikněte a napište dotaz…";
+
+      // accent + bg
+      if (muni?.theme?.primary) setAccent(muni.theme.primary);
+      await setBackgroundForSlug(slug);
+
+      // greeting in chat
+      chat.innerHTML = '';
       add('ai', `Dobrý den 👋 Jsem ukázkový AI asistent pro obec ${displayName}. Jak vám mohu pomoci?`);
-      inp.focus();
+
+      // open by default? (ne) – necháme intercom-style
     }
 
     async function ask(q) {
       const msg = (q ?? inp.value).trim();
       if (!msg) return;
 
+      // user message
       add('user', msg);
       inp.value = '';
       sendBtn.disabled = true;
-      statusEl.textContent = 'Generuje se odpověď…';
 
-      add('ai', 'Generuje se odpověď…');
-      const loadingEl = chat.lastElementChild;
+      const typingEl = addTyping();
 
       try {
         const res = await fetch('/.netlify/functions/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: msg, thread_id: threadId, obec: slug })
+          body: JSON.stringify({
+            message: msg,
+            thread_id: threadId,
+            obec: slug
+          })
         });
 
         const data = await res.json().catch(() => ({}));
-        if (loadingEl) loadingEl.remove();
+        if (typingEl) typingEl.remove();
 
         if (!res.ok || !data.ok) {
           add('ai', 'Omlouvám se, teď se mi nepodařilo odpovědět. Zkuste to prosím znovu.');
         } else {
-          const answer = sanitizeAnswerFront(data.answer || '');
+          const answer = (data.answer || '').trim();
           add('ai', answer || 'Omlouvám se, nepodařilo se mi najít odpověď.');
 
           if (data.thread_id) {
             threadId = data.thread_id;
             localStorage.setItem(THREAD_KEY(), threadId);
           }
+
+          // after successful answer increment count
+          userQCount += 1;
+          if (userQCount >= 2) showFeedbackCard();
         }
       } catch (e) {
-        if (loadingEl) loadingEl.remove();
+        if (typingEl) typingEl.remove();
         add('ai', 'Omlouvám se, došlo k chybě připojení. Zkuste to prosím znovu.');
       } finally {
         sendBtn.disabled = false;
-        statusEl.textContent = '';
         inp.focus();
       }
     }
+
+    // ===== Events =====
+    openTab.addEventListener('click', openPanel);
+    closeBtn.addEventListener('click', closePanel);
+    resetBtn.addEventListener('click', resetConversation);
 
     sendBtn.addEventListener('click', () => ask());
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') ask(); });
@@ -430,16 +750,8 @@
       el.addEventListener('click', () => ask(el.getAttribute('data-q')));
     });
 
-    function resetConversation() {
-      localStorage.removeItem(THREAD_KEY());
-      threadId = null;
-      chat.innerHTML = '';
-      add('ai', `Resetováno. Zeptejte se znovu (obec: ${slug}).`);
-      inp.focus();
-    }
-    resetTop.addEventListener('click', resetConversation);
-
-    initMunicipality();
+    // init
+    init();
   </script>
 </body>
 </html>
