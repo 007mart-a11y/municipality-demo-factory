@@ -20,5 +20,16 @@
       "primary": "#00E5FF",
       "bg": "#071018"
     }
+  },
+  "hradec-kralove": {
+    "slug": "hradec-kralove",
+    "name": "Hradec Králové",
+    "assistant_id": "asst_6Yche0si672HlDh1oytHwz3H",
+    "website_url": "https://www.hradeckralove.org/",
+    "logo_url": "",
+    "theme": {
+      "primary": "#00E5FF",
+      "bg": "#071018"
+    }
   }
 }
