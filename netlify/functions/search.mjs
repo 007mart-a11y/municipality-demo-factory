@@ -39,6 +39,33 @@ function pickMunicipality(reg, slug) {
   return null;
 }
 
+/**
+ * Odstraní technické/nevhodné věci z odpovědi:
+ * - source/sources/citace/reference řádky
+ * - 404/not found/cannot fetch
+ * - typické "citace" v hranatých závorkách (【...】) – často z retrieval
+ * - přebytečné prázdné řádky
+ */
+function sanitizeAnswer(text) {
+  if (!text) return text;
+
+  let t = String(text);
+
+  // pryč "【...】" bloky (často citace z retrieval)
+  t = t.replace(/【[^】]{1,200}】/g, "");
+
+  // pryč řádky se zdroji/citacemi
+  t = t.replace(/^\s*(zdroj|zdroje|source|sources|citace|reference)s?\s*:.*$/gim, "");
+
+  // pryč technické hlášky
+  t = t.replace(/404|not found|cannot fetch|error fetching|unsupported value/gi, "");
+
+  // zredukovat hodně prázdných řádků
+  t = t.replace(/\n{3,}/g, "\n\n").trim();
+
+  return t;
+}
+
 export default async (request) => {
   try {
     if (request.method !== "POST") {
@@ -48,7 +75,10 @@ export default async (request) => {
       });
     }
 
-    const { message, thread_id, obec } = await request.json();
+    const body = await request.json().catch(() => ({}));
+    const message = body?.message;
+    const thread_id = body?.thread_id;
+    const obec = body?.obec;
 
     if (!message) {
       return new Response(JSON.stringify({ ok: false, error: "Missing message" }), {
@@ -113,7 +143,12 @@ export default async (request) => {
       const threadData = await threadRes.json();
       if (!threadRes.ok) {
         return new Response(
-          JSON.stringify({ ok: false, error: "Failed to create thread", status: threadRes.status, details: threadData }),
+          JSON.stringify({
+            ok: false,
+            error: "Failed to create thread",
+            status: threadRes.status,
+            details: threadData
+          }),
           { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
@@ -134,12 +169,17 @@ export default async (request) => {
     const addMsgData = await addMsgRes.json().catch(() => ({}));
     if (!addMsgRes.ok) {
       return new Response(
-        JSON.stringify({ ok: false, error: "Failed to add message", status: addMsgRes.status, details: addMsgData }),
+        JSON.stringify({
+          ok: false,
+          error: "Failed to add message",
+          status: addMsgRes.status,
+          details: addMsgData
+        }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    // 3) Create run (tady už používáme assistantId podle obce)
+    // 3) Create run
     const runRes = await fetch(`https://api.openai.com/v1/threads/${currentThreadId}/runs`, {
       method: "POST",
       headers: BASE_HEADERS,
@@ -151,7 +191,12 @@ export default async (request) => {
     const runData = await runRes.json();
     if (!runRes.ok) {
       return new Response(
-        JSON.stringify({ ok: false, error: "Failed to create run", status: runRes.status, details: runData }),
+        JSON.stringify({
+          ok: false,
+          error: "Failed to create run",
+          status: runRes.status,
+          details: runData
+        }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -173,7 +218,12 @@ export default async (request) => {
       const statusData = await statusRes.json();
       if (!statusRes.ok) {
         return new Response(
-          JSON.stringify({ ok: false, error: "Failed to fetch run status", status: statusRes.status, details: statusData }),
+          JSON.stringify({
+            ok: false,
+            error: "Failed to fetch run status",
+            status: statusRes.status,
+            details: statusData
+          }),
           { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
@@ -190,7 +240,13 @@ export default async (request) => {
 
     if (status !== "completed") {
       return new Response(
-        JSON.stringify({ ok: false, error: "Run did not complete in time", status, thread_id: currentThreadId, run_id: runId }),
+        JSON.stringify({
+          ok: false,
+          error: "Run did not complete in time",
+          status,
+          thread_id: currentThreadId,
+          run_id: runId
+        }),
         { status: 504, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -203,7 +259,12 @@ export default async (request) => {
     const messagesData = await messagesRes.json();
     if (!messagesRes.ok) {
       return new Response(
-        JSON.stringify({ ok: false, error: "Failed to fetch messages", status: messagesRes.status, details: messagesData }),
+        JSON.stringify({
+          ok: false,
+          error: "Failed to fetch messages",
+          status: messagesRes.status,
+          details: messagesData
+        }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -217,35 +278,29 @@ export default async (request) => {
       const contentArr = Array.isArray(msg.content) ? msg.content : [];
       const textBlock = contentArr.find((c) => c?.type === "text");
       if (textBlock?.text?.value) {
-        answer = textBlock.text.value;
+        answer = sanitizeAnswer(textBlock.text.value);
         break;
       }
     }
 
     if (!answer) {
       return new Response(
-        JSON.stringify({
-          ok: false,
-          error: "No assistant text found",
-          slug,
-          assistant_id: assistantId
-        }),
+        JSON.stringify({ ok: false, error: "No assistant text found" }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
 
+    // ✅ čistý výstup – jen to, co UI potřebuje
     return new Response(
       JSON.stringify({
         ok: true,
         answer,
-        thread_id: currentThreadId,
-        slug,
-        assistant_id: assistantId
+        thread_id: currentThreadId
       }),
       { headers: { "Content-Type": "application/json" } }
     );
   } catch (err) {
-    return new Response(JSON.stringify({ ok: false, error: err.message }), {
+    return new Response(JSON.stringify({ ok: false, error: err?.message || "Unknown error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
