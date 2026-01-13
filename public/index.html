@@ -3,73 +3,248 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AI asistent obce</title>
+  <title>AI asistent obce – DEMO</title>
+
   <style>
-    body { font-family: system-ui, -apple-system, Arial, sans-serif; margin: 0; background:#0b1220; color:#e8eefc; }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 24px; }
-    .card { background:#0f1a33; border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding: 18px; }
-    h1 { margin: 0 0 8px; font-size: 22px; }
-    .sub { opacity:.85; margin: 0 0 14px; }
-    .chat { height: 56vh; overflow:auto; padding: 12px; background:#08102a; border-radius:14px; border:1px solid rgba(255,255,255,0.08); }
-    .msg { margin: 10px 0; display:flex; }
-    .msg.user { justify-content:flex-end; }
-    .bubble { max-width: 80%; padding: 10px 12px; border-radius: 14px; line-height: 1.35; white-space: pre-wrap; }
-    .user .bubble { background:#1a2a5a; border:1px solid rgba(0,229,255,0.35); }
-    .ai .bubble { background:#101b3f; border:1px solid rgba(255,255,255,0.10); }
+    :root{
+      --bg:#0b1220;
+      --panel:#0f1a33;
+      --panel2:#08102a;
+      --text:#e8eefc;
+      --muted:rgba(232,238,252,.72);
+      --border:rgba(255,255,255,.10);
+      --accent:#00E5FF;
+      --accent2:rgba(0,229,255,.16);
+      --shadow: 0 20px 55px rgba(0,0,0,.55);
+    }
 
-    .row { display:flex; gap:10px; margin-top: 12px; }
-    input { flex:1; padding: 12px; border-radius: 12px; border:1px solid rgba(255,255,255,0.14); background:#071026; color:#e8eefc; outline:none; }
-    button { padding: 12px 14px; border-radius: 12px; border:1px solid rgba(0,229,255,0.45); background:#0b244a; color:#e8eefc; cursor:pointer; }
-    button:disabled { opacity:.6; cursor:not-allowed; }
+    body{
+      font-family: system-ui, -apple-system, Arial, sans-serif;
+      margin:0;
+      background: radial-gradient(1200px 600px at 30% 0%, rgba(0,229,255,.12), transparent 55%),
+                  linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)),
+                  var(--bg);
+      color:var(--text);
+    }
 
-    .small { font-size: 12px; opacity: .75; margin-top: 10px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;}
-    a { color:#7fefff; text-decoration: none; }
+    .wrap{ max-width: 980px; margin: 0 auto; padding: 24px; }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
 
-    .pillbar { display:flex; gap:10px; flex-wrap:wrap; margin: 10px 0 8px; }
-    .pill { padding:6px 10px; border:1px solid rgba(255,255,255,0.12); border-radius:999px; background:rgba(255,255,255,0.04); cursor:pointer; user-select:none;}
-    .pill:hover { background:rgba(255,255,255,0.07); }
+    /* ======= CHAT HEADER (to co chceš) ======= */
+    .chatHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding: 10px 12px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background: rgba(0,0,0,.18);
+      backdrop-filter: blur(6px);
+      margin-bottom: 12px;
+    }
 
-    .toprow { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
-    .badge { font-size: 12px; padding: 6px 10px; border-radius: 999px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); }
-    code { opacity: .9; }
+    .chLeft{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
+    .logoBox{
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,229,255,.10);
+      border:1px solid rgba(0,229,255,.18);
+      font-size: 18px;
+      flex:0 0 auto;
+    }
+
+    .chTitleWrap{
+      min-width:0;
+    }
+
+    .chTitle{
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: .2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 560px;
+    }
+
+    .chSub{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 560px;
+    }
+
+    .chRight{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+
+    .badge{
+      font-size: 11px;
+      padding: 5px 9px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+    }
+
+    .btnGhost{
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      cursor:pointer;
+      user-select:none;
+    }
+
+    .btnGhost:hover{ background: rgba(255,255,255,.07); }
+
+    /* ======= Pills ======= */
+    .pillbar{ display:flex; gap:10px; flex-wrap:wrap; margin: 8px 0 10px; }
+    .pill{
+      padding: 7px 10px;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:999px;
+      background: rgba(255,255,255,0.04);
+      cursor:pointer;
+      user-select:none;
+      font-size: 12px;
+    }
+    .pill:hover{ background: rgba(255,255,255,0.07); }
+
+    /* ======= Chat ======= */
+    .chat{
+      height: 58vh;
+      overflow:auto;
+      padding: 12px;
+      background: var(--panel2);
+      border-radius:16px;
+      border:1px solid var(--border);
+    }
+
+    .msg{ margin: 10px 0; display:flex; }
+    .msg.user{ justify-content:flex-end; }
+
+    .bubble{
+      max-width: 86%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      line-height: 1.35;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border:1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .user .bubble{
+      background: rgba(255,255,255,.06);
+      border-color: rgba(0,229,255,0.20);
+    }
+
+    .ai .bubble{
+      background: rgba(0,229,255,.08);
+      border-color: rgba(0,229,255,.14);
+    }
+
+    .bubble a{ color: var(--accent); text-decoration: none; }
+    .bubble a:hover{ text-decoration: underline; }
+
+    /* ======= Input ======= */
+    .row{ display:flex; gap:10px; margin-top: 12px; }
+    input{
+      flex:1;
+      padding: 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,0.14);
+      background:#071026;
+      color: var(--text);
+      outline:none;
+    }
+    button{
+      padding: 12px 14px;
+      border-radius: 12px;
+      border:1px solid rgba(0,229,255,0.35);
+      background: rgba(0,229,255,0.10);
+      color: var(--text);
+      cursor:pointer;
+      font-weight: 700;
+    }
+    button:disabled{ opacity:.6; cursor:not-allowed; }
+
+    .footerHint{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="card">
 
-      <div class="toprow">
-        <div>
-          <h1 id="title">AI asistent obce</h1>
-          <p class="sub" id="subtitle">Zeptejte se na úřední hodiny, kontakty, odpady… (odpovědi jsou z podkladů obce).</p>
+      <!-- HLAVIČKA CHATTU (produktový look) -->
+      <div class="chatHeader" role="banner">
+        <div class="chLeft">
+          <div class="logoBox" aria-hidden="true">🤖</div>
+          <div class="chTitleWrap">
+            <div class="chTitle" id="headerTitle">Ukázka DEMO pro obec</div>
+            <div class="chSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny, odpady, poplatky…</div>
+          </div>
         </div>
-        <div class="badge" id="badge">obec: <b id="slugLabel">radim</b></div>
+        <div class="chRight">
+          <div class="badge">DEMO</div>
+          <button class="btnGhost" id="resetTop" type="button">Reset</button>
+        </div>
       </div>
 
-      <!-- Výběr obce -->
-      <div class="row" style="margin: 10px 0 8px;">
-        <input id="obec" type="text" placeholder="Slug obce (např. radim) nebo vlož odkaz s ?obec=..." />
-        <button id="apply">Použít obec</button>
-      </div>
-
+      <!-- rychlé dotazy -->
       <div class="pillbar">
         <span class="pill" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
-        <span class="pill" data-q="Jaký je kontakt na obecní úřad?">Kontakt</span>
-        <span class="pill" data-q="Kde je skládka bioodpadu a kdy je otevřeno?">Bioodpad</span>
+        <span class="pill" data-q="Jaký je kontakt na městský/obecní úřad?">Kontakt</span>
+        <span class="pill" data-q="Kde je bioodpad a kdy je otevřeno?">Bioodpad</span>
         <span class="pill" data-q="Jak se platí poplatek za odpad?">Poplatek za odpad</span>
-        <span class="pill" id="reset">Reset konverzace</span>
+        <span class="pill" data-q="Kde na webu najdu úřední desku?">Úřední deska</span>
       </div>
 
       <div id="chat" class="chat" aria-live="polite"></div>
 
       <div class="row">
-        <input id="inp" type="text" placeholder="Napište dotaz…" />
-        <button id="send">Odeslat</button>
+        <input id="inp" type="text" placeholder="Napište dotaz…" autocomplete="off" />
+        <button id="send" type="button">Odeslat</button>
       </div>
 
-      <div class="small">
-        <div>Backend: <code>/.netlify/functions/search</code></div>
+      <div class="footerHint">
         <div id="status"></div>
+        <div style="opacity:.65;">Ukázka slouží pro představu fungování AI asistenta na webu obce.</div>
       </div>
 
     </div>
@@ -81,37 +256,55 @@
     const sendBtn = document.getElementById('send');
     const statusEl = document.getElementById('status');
 
-    const titleEl = document.getElementById('title');
-    const subtitleEl = document.getElementById('subtitle');
-    const slugLabel = document.getElementById('slugLabel');
+    const headerTitle = document.getElementById('headerTitle');
+    const headerSub = document.getElementById('headerSub');
 
-    const obecInp = document.getElementById('obec');
-    const applyBtn = document.getElementById('apply');
-    const resetBtn = document.getElementById('reset');
+    const resetTop = document.getElementById('resetTop');
 
+    // ===== Helpers =====
     function getParam(name) {
       const u = new URL(window.location.href);
       return u.searchParams.get(name);
     }
-    function setParam(name, value) {
-      const u = new URL(window.location.href);
-      u.searchParams.set(name, value);
-      history.replaceState(null, "", u.toString());
-    }
 
     function normalizeSlug(value) {
       if (!value) return "";
-      // pokud uživatel vloží celý odkaz, zkus vytáhnout ?obec=
-      try {
-        if (value.startsWith("http://") || value.startsWith("https://")) {
-          const u = new URL(value);
-          const p = u.searchParams.get("obec");
-          if (p) value = p;
-        }
-      } catch {}
       return value.toLowerCase().trim()
         .replace(/\s+/g, "-")
         .replace(/[^a-z0-9\-]/g, "");
+    }
+
+    // slug z URL:
+    // /radim/ -> radim
+    // /demo/radim/ -> radim
+    // fallback ?obec=radim
+    function inferSlugFromUrl() {
+      const parts = location.pathname.split('/').filter(Boolean).map(x => x.toLowerCase());
+      if (parts.length) {
+        if ((parts[0] === "demo" || parts[0] === "obec") && parts[1]) return normalizeSlug(parts[1]);
+        return normalizeSlug(parts[0]);
+      }
+      return normalizeSlug(getParam("obec") || "radim") || "radim";
+    }
+
+    // linkify URL v textu
+    function linkify(text) {
+      const urlRegex = /(https?:\/\/[^\s)]+)\b/g;
+      return String(text).replace(urlRegex, (url) => {
+        const safe = url.replace(/"/g, "%22");
+        return `<a href="${safe}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+      });
+    }
+
+    // pojistka na bordel v odpovědi (hlavní má být backend)
+    function sanitizeAnswerFront(text){
+      if (!text) return text;
+      return String(text)
+        .replace(/【[^】]{1,200}】/g, "")
+        .replace(/^\s*(zdroj|zdroje|source|sources|citace|reference)s?\s*:.*$/gim, "")
+        .replace(/404|not found|cannot fetch|error fetching/gi, "")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
     }
 
     function add(role, text) {
@@ -119,16 +312,15 @@
       wrap.className = 'msg ' + (role === 'user' ? 'user' : 'ai');
       const b = document.createElement('div');
       b.className = 'bubble';
-      b.textContent = text;
+      b.innerHTML = linkify(text);
       wrap.appendChild(b);
       chat.appendChild(wrap);
       chat.scrollTop = chat.scrollHeight;
     }
 
-    // ---- Registry loading
+    // ---- Registry loading (bereš z public/registry/... pokud to tak deployuješ)
     async function loadRegistry() {
       try {
-        // soubor může být v registry/municipalities.json
         const res = await fetch('/registry/municipalities.json', { cache: 'no-store' });
         if (!res.ok) return null;
         return await res.json();
@@ -139,11 +331,6 @@
 
     function pickMunicipality(reg, slug) {
       if (!reg) return null;
-
-      // Podpora různých struktur:
-      // 1) { municipalities: [ {slug, name, website...} ] }
-      // 2) [ {slug, name...} ]
-      // 3) { radim: {name...}, ... }
       if (Array.isArray(reg)) {
         return reg.find(m => m && (m.slug === slug || m.id === slug)) || null;
       }
@@ -155,38 +342,23 @@
     }
 
     // ---- State
-    let slug = normalizeSlug(getParam("obec") || "radim");
-    setParam("obec", slug); // aby byl link sdílitelný
-
-    // thread_id ukládáme zvlášť pro každou obec
-    const THREAD_KEY = () => `municipality_thread_id_v1_${slug}`;
+    let slug = inferSlugFromUrl();
+    const THREAD_KEY = () => `municipality_thread_id_v2_${slug}`;
     let threadId = localStorage.getItem(THREAD_KEY()) || null;
 
-    async function applyMunicipality(newSlug) {
-      slug = normalizeSlug(newSlug) || "radim";
-      setParam("obec", slug);
-      slugLabel.textContent = slug;
-      obecInp.value = slug;
+    async function initMunicipality() {
+      statusEl.textContent = "";
 
-      // reset chatu + threadu (aby se nemíchaly obce)
-      chat.innerHTML = "";
-      threadId = null;
-      statusEl.textContent = "Načítám obec…";
-
-      // načti registry a nastav UI
       const reg = await loadRegistry();
       const m = pickMunicipality(reg, slug);
 
-      if (m?.name) {
-        titleEl.textContent = `AI asistent obce ${m.name}`;
-        subtitleEl.textContent = "Zeptejte se na úřední hodiny, kontakty, odpady… (odpovědi jsou z podkladů obce).";
-      } else {
-        titleEl.textContent = `AI asistent obce (${slug})`;
-        subtitleEl.textContent = "Obec není v registry – demo běží, ale doplň záznam do registry/municipalities.json.";
-      }
+      const displayName = m?.name || slug;
 
-      add('ai', `Dobrý den, jsem AI asistent obce ${m?.name || slug}. Na co se chcete zeptat?`);
-      statusEl.textContent = "Připraveno";
+      headerTitle.textContent = `Ukázka DEMO pro obec: ${displayName}`;
+      headerSub.textContent = "Zeptejte se na kontakty, úřední hodiny, odpady, poplatky…";
+
+      // uvítání
+      add('ai', `Dobrý den 👋 Jsem ukázkový AI asistent pro obec ${displayName}. Jak vám mohu pomoci?`);
       inp.focus();
     }
 
@@ -199,6 +371,10 @@
       sendBtn.disabled = true;
       statusEl.textContent = 'Generuje se odpověď…';
 
+      // loading bubble
+      add('ai', 'Generuje se odpověď…');
+      const loadingEl = chat.lastElementChild;
+
       try {
         const res = await fetch('/.netlify/functions/search', {
           method: 'POST',
@@ -206,28 +382,35 @@
           body: JSON.stringify({
             message: msg,
             thread_id: threadId,
-            obec: slug // volitelně; backend může ignorovat
+            obec: slug
           })
         });
 
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
 
-        if (!data.ok) {
-          add('ai', 'Chyba: ' + (data.error || 'Neznámá chyba'));
-          if (data.details) add('ai', JSON.stringify(data.details).slice(0, 900));
-          if (data.messagesData) add('ai', 'DEBUG: messagesData (zkráceno)\n' + JSON.stringify(data.messagesData).slice(0, 900));
+        // remove loading
+        if (loadingEl) loadingEl.remove();
+
+        if (!res.ok || !data.ok) {
+          add('ai', 'Omlouvám se, teď se mi nepodařilo odpovědět. Zkuste to prosím znovu.');
+          statusEl.textContent = '';
         } else {
-          add('ai', data.answer || '(prázdná odpověď)');
+          const answer = sanitizeAnswerFront(data.answer || '');
+          add('ai', answer || 'Omlouvám se, nepodařilo se mi najít odpověď.');
+
           if (data.thread_id) {
             threadId = data.thread_id;
             localStorage.setItem(THREAD_KEY(), threadId);
           }
+
+          statusEl.textContent = '';
         }
       } catch (e) {
-        add('ai', 'Chyba spojení: ' + e.message);
+        if (loadingEl) loadingEl.remove();
+        add('ai', 'Omlouvám se, došlo k chybě připojení. Zkuste to prosím znovu.');
+        statusEl.textContent = '';
       } finally {
         sendBtn.disabled = false;
-        statusEl.textContent = threadId ? 'thread_id uložen' : '';
         inp.focus();
       }
     }
@@ -240,20 +423,18 @@
       el.addEventListener('click', () => ask(el.getAttribute('data-q')));
     });
 
-    applyBtn.addEventListener('click', () => applyMunicipality(obecInp.value));
-    obecInp.addEventListener('keydown', (e) => { if (e.key === 'Enter') applyMunicipality(obecInp.value); });
-
-    resetBtn.addEventListener('click', () => {
+    function resetConversation() {
       localStorage.removeItem(THREAD_KEY());
       threadId = null;
       chat.innerHTML = '';
       add('ai', `Resetováno. Zeptejte se znovu (obec: ${slug}).`);
-      statusEl.textContent = 'Resetováno';
       inp.focus();
-    });
+    }
+
+    resetTop.addEventListener('click', resetConversation);
 
     // Init
-    applyMunicipality(slug);
+    initMunicipality();
   </script>
 </body>
 </html>
