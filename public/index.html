@@ -13,12 +13,11 @@
       --border:rgba(255,255,255,.10);
       --accent:#00E5FF;
 
-      --glass: rgba(10,18,32,.68);
-      --glass2: rgba(10,18,32,.84);
-      --panel: rgba(15,26,51,.90);
+      --glass: rgba(10,18,32,.72);
+      --panel: rgba(15,26,51,.92);
 
-      --shadow: 0 24px 60px rgba(0,0,0,.55);
-      --shadowSoft: 0 16px 40px rgba(0,0,0,.42);
+      --shadow: 0 22px 60px rgba(0,0,0,.55);
+      --shadowSoft: 0 14px 40px rgba(0,0,0,.42);
       --radius: 18px;
     }
 
@@ -35,7 +34,18 @@
       overflow-x:hidden;
     }
 
-    /* ---------- HERO (jen aby stránka nevypadala prázdně) ---------- */
+    /* ======= Background skin (homepage screenshot) ======= */
+    body.has-skin{
+      background-image:
+        linear-gradient(180deg, rgba(0,0,0,.16), rgba(0,0,0,.62)),
+        var(--skin-url);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+
+    /* ======= Page content (jen aby stránka nebyla prázdná) ======= */
     .hero{
       max-width: 980px;
       margin: 0 auto;
@@ -59,7 +69,7 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.45;
-      max-width: 720px;
+      max-width: 740px;
     }
     .heroHint{
       margin-top: 10px;
@@ -68,126 +78,145 @@
     }
     code{ opacity:.9; }
 
-    /* ---------- LAUNCHER TAB (modern pill) ---------- */
-    .sideTab{
+    /* ==========================
+       INTERCOM-LIKE LAUNCHER TAB
+       ========================== */
+    .launcherTab{
       position: fixed;
-      right: 12px;
+      right: 0;
       top: 50%;
       transform: translateY(-50%);
       z-index: 9999;
 
+      width: 56px;
+      height: 124px;
+      border-radius: 18px 0 0 18px;
+
       display:flex;
+      flex-direction:column;
       align-items:center;
+      justify-content:center;
       gap:10px;
 
-      padding: 10px 12px;
-      border-radius: 999px;
-      border:1px solid rgba(255,255,255,.12);
-
-      background: var(--glass);
-      backdrop-filter: blur(12px);
       cursor:pointer;
       user-select:none;
 
-      box-shadow: 0 14px 45px rgba(0,0,0,.45);
-      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+      background: rgba(10,18,32,.70);
+      backdrop-filter: blur(12px);
+      border:1px solid rgba(255,255,255,.10);
+      border-right: none;
+
+      box-shadow: 0 18px 55px rgba(0,0,0,.55);
+      transition: background .15s ease, border-color .15s ease, transform .15s ease;
+      overflow:hidden;
     }
-    .sideTab:hover{
-      transform: translateY(-50%) scale(1.02);
-      background: var(--glass2);
-      border-color: rgba(0,229,255,.22);
+    .launcherTab:hover{
+      background: rgba(10,18,32,.84);
+      border-color: rgba(0,229,255,.20);
+      transform: translateY(-50%) translateX(-1px);
     }
-    .tabIcon{
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
+    .launcherIcon{
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
       display:flex;
       align-items:center;
       justify-content:center;
       background: rgba(0,229,255,.12);
       border:1px solid rgba(0,229,255,.18);
-      font-size: 17px;
-      flex:0 0 auto;
+      font-size: 18px;
     }
-    .tabText{
-      display:flex;
-      flex-direction:column;
-      line-height:1.15;
-      padding-right: 4px;
-      min-width:0;
-    }
-    .tabText strong{ font-size: 12px; letter-spacing:.2px; white-space:nowrap; }
-    .tabText span{
+    .launcherLabel{
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
       font-size: 11px;
-      color: rgba(232,238,252,.68);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-      max-width: 160px;
+      letter-spacing:.18em;
+      text-transform: uppercase;
+      color: rgba(232,238,252,.78);
+      opacity:.95;
     }
 
-    .blink{ animation: pulseGlow 2.7s ease-in-out infinite; }
+    /* jemné pulsování */
+    .pulse{
+      animation: pulseGlow 3.2s ease-in-out infinite;
+    }
     @keyframes pulseGlow{
-      0%,100% { box-shadow: 0 14px 45px rgba(0,0,0,.45), 0 0 0 rgba(0,229,255,0); }
-      50%     { box-shadow: 0 14px 45px rgba(0,0,0,.45), 0 0 18px rgba(0,229,255,.22); }
+      0%,100% {
+        box-shadow: 0 18px 55px rgba(0,0,0,.55), 0 0 0 rgba(0,229,255,0);
+      }
+      50% {
+        box-shadow: 0 18px 55px rgba(0,0,0,.55), 0 0 22px rgba(0,229,255,.22);
+      }
     }
 
-    /* ---------- BACKDROP + DRAWER ---------- */
-    .drawerBackdrop{
+    /* ==========================
+       FLOATING WIDGET (NOT FULL HEIGHT)
+       ========================== */
+    .backdrop{
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.38);
+      background: rgba(0,0,0,.35);
       z-index: 9998;
       opacity: 0;
-      pointer-events: none;
+      pointer-events:none;
       transition: opacity .18s ease;
     }
-    .drawerBackdrop.open{
-      opacity: 1;
-      pointer-events: auto;
+    .backdrop.open{
+      opacity:1;
+      pointer-events:auto;
     }
 
-    .drawer{
+    .widget{
       position: fixed;
-      top: 0;
-      right: 0;
-      height: 100vh;
-      width: min(420px, 92vw);
+      right: 18px;
+      bottom: 18px;
       z-index: 9999;
 
-      transform: translateX(100%);
-      transition: transform .22s ease;
+      width: min(420px, calc(100vw - 30px));
+      height: min(640px, calc(100vh - 110px));
+
+      border-radius: 22px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(15,26,51,.92);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+
       display:flex;
       flex-direction:column;
 
-      background: rgba(15,26,51,.92);
-      border-left: 1px solid rgba(255,255,255,.10);
-      backdrop-filter: blur(12px);
-      box-shadow: -20px 0 55px rgba(0,0,0,.55);
+      transform: translateY(12px);
+      opacity: 0;
+      pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+      overflow:hidden;
     }
-    .drawer.open{ transform: translateX(0); }
+    .widget.open{
+      opacity:1;
+      transform: translateY(0);
+      pointer-events:auto;
+    }
 
-    /* ---------- HEADER ---------- */
-    .drawerHeader{
+    /* header */
+    .wHeader{
       padding: 12px 12px 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0));
       border-bottom: 1px solid rgba(255,255,255,.08);
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.00));
     }
-    .hdrRow{
+    .wHeaderRow{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
     }
-    .hdrLeft{
+    .wLeft{
       display:flex;
       align-items:center;
       gap:10px;
       min-width:0;
     }
-    .hdrIcon{
-      width: 36px;
-      height: 36px;
+    .wLogo{
+      width: 38px;
+      height: 38px;
       border-radius: 14px;
       display:flex;
       align-items:center;
@@ -197,26 +226,26 @@
       font-size: 18px;
       flex:0 0 auto;
     }
-    .hdrText{ min-width:0; }
-    .hdrTitle{
-      font-weight: 800;
+    .wTitleWrap{ min-width:0; }
+    .wTitle{
+      font-weight: 850;
       font-size: 13px;
       letter-spacing:.2px;
       white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
-      max-width: 250px;
+      max-width: 240px;
     }
-    .hdrSub{
+    .wSub{
       font-size: 12px;
       color: var(--muted);
       margin-top: 2px;
       white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
-      max-width: 250px;
+      max-width: 240px;
     }
-    .hdrRight{
+    .wRight{
       display:flex;
       align-items:center;
       gap:8px;
@@ -234,7 +263,7 @@
       height: 34px;
       border-radius: 12px;
       border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
+      background: rgba(255,255,255,.06);
       color: var(--text);
       cursor:pointer;
       display:flex;
@@ -243,19 +272,20 @@
       transition: background .12s ease, border-color .12s ease;
     }
     .iconBtn:hover{
-      background: rgba(255,255,255,.08);
+      background: rgba(255,255,255,.09);
       border-color: rgba(0,229,255,.18);
     }
 
-    /* ---------- CHIPS ---------- */
-    .pillbar{
+    /* chips */
+    .chips{
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
       display:flex;
       gap:8px;
       flex-wrap:wrap;
-      padding: 10px 12px 10px;
-      border-bottom: 1px solid rgba(255,255,255,.06);
+      background: rgba(0,0,0,.08);
     }
-    .pill{
+    .chip{
       padding: 7px 10px;
       border:1px solid rgba(255,255,255,.12);
       border-radius: 999px;
@@ -265,20 +295,19 @@
       font-size: 12px;
       transition: background .12s ease, border-color .12s ease, transform .08s ease;
     }
-    .pill:hover{
+    .chip:hover{
       background: rgba(255,255,255,.08);
       border-color: rgba(0,229,255,.16);
     }
-    .pill:active{ transform: scale(.98); }
+    .chip:active{ transform: scale(.98); }
 
-    /* ---------- CHAT AREA ---------- */
+    /* chat area */
     .chat{
-      flex: 1;
+      flex:1;
       overflow:auto;
       padding: 14px 12px 16px;
       background: rgba(8,16,42,.50);
     }
-    /* nicer scrollbar */
     .chat::-webkit-scrollbar{ width: 10px; }
     .chat::-webkit-scrollbar-thumb{
       background: rgba(255,255,255,.10);
@@ -311,7 +340,7 @@
     .bubble a{ color: var(--accent); text-decoration: none; }
     .bubble a:hover{ text-decoration: underline; }
 
-    /* ---------- INPUT ---------- */
+    /* input */
     .inputWrap{
       padding: 12px;
       border-top: 1px solid rgba(255,255,255,.08);
@@ -361,10 +390,9 @@
       min-height: 16px;
     }
 
-    /* ---------- small screens ---------- */
     @media (max-width: 420px){
-      .tabText{ display:none; }
-      .hdrTitle, .hdrSub{ max-width: 180px; }
+      .widget{ right: 12px; bottom: 12px; height: min(620px, calc(100vh - 90px)); }
+      .wTitle, .wSub{ max-width: 190px; }
     }
   </style>
 </head>
@@ -377,46 +405,45 @@
         Ukázka chatu pro občany (kontakty, úřední hodiny, odpady, poplatky…). Otevřete chat boční lištou vpravo.
       </div>
       <div class="heroHint">
-        Tip: pošlete odkaz ve tvaru <code>/hradec-kralove/</code>, <code>/zeleznice/</code> apod.
+        Tip: pošlete odkaz ve tvaru <code>/hradec-kralove/</code>, <code>/zeleznice/</code>, <code>/radim/</code>
       </div>
     </div>
   </div>
 
-  <!-- Side tab launcher -->
-  <div id="sideTab" class="sideTab blink" role="button" aria-label="Otevřít chat">
-    <div class="tabIcon">🤖</div>
-    <div class="tabText">
-      <strong>Otevřít chat</strong>
-      <span id="tabSub">DEMO pro obec</span>
-    </div>
+  <!-- Launcher -->
+  <div id="launcher" class="launcherTab pulse" role="button" aria-label="Otevřít chat">
+    <div class="launcherIcon">🤖</div>
+    <div class="launcherLabel">asistent</div>
   </div>
 
-  <div id="backdrop" class="drawerBackdrop"></div>
+  <!-- Backdrop -->
+  <div id="backdrop" class="backdrop"></div>
 
-  <aside id="drawer" class="drawer" aria-label="Chat">
-    <div class="drawerHeader">
-      <div class="hdrRow">
-        <div class="hdrLeft">
-          <div class="hdrIcon" aria-hidden="true">🤖</div>
-          <div class="hdrText">
-            <div class="hdrTitle" id="headerTitle">Ukázka DEMO pro obec</div>
-            <div class="hdrSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny, odpady…</div>
+  <!-- Floating widget -->
+  <aside id="widget" class="widget" aria-label="Chat">
+    <div class="wHeader">
+      <div class="wHeaderRow">
+        <div class="wLeft">
+          <div class="wLogo" aria-hidden="true">🤖</div>
+          <div class="wTitleWrap">
+            <div class="wTitle" id="headerTitle">Ukázka pro obec</div>
+            <div class="wSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny, odpady…</div>
           </div>
         </div>
-        <div class="hdrRight">
+        <div class="wRight">
           <div class="badge">DEMO</div>
-          <button class="iconBtn" id="resetTop" type="button" title="Reset">↺</button>
+          <button class="iconBtn" id="resetBtn" type="button" title="Reset">↺</button>
           <button class="iconBtn" id="closeBtn" type="button" title="Zavřít">✕</button>
         </div>
       </div>
     </div>
 
-    <div class="pillbar">
-      <span class="pill" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
-      <span class="pill" data-q="Jaký je kontakt na městský/obecní úřad?">Kontakt</span>
-      <span class="pill" data-q="Kde je bioodpad a kdy je otevřeno?">Bioodpad</span>
-      <span class="pill" data-q="Jak se platí poplatek za odpad?">Poplatek za odpad</span>
-      <span class="pill" data-q="Kde na webu najdu úřední desku?">Úřední deska</span>
+    <div class="chips">
+      <span class="chip" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
+      <span class="chip" data-q="Jaký je kontakt na městský/obecní úřad?">Kontakt</span>
+      <span class="chip" data-q="Kde je bioodpad a kdy je otevřeno?">Bioodpad</span>
+      <span class="chip" data-q="Jak se platí poplatek za odpad?">Poplatek za odpad</span>
+      <span class="chip" data-q="Kde na webu najdu úřední desku?">Úřední deska</span>
     </div>
 
     <div id="chat" class="chat" aria-live="polite"></div>
@@ -431,10 +458,11 @@
   </aside>
 
   <script>
-    const drawer = document.getElementById('drawer');
+    const launcher = document.getElementById('launcher');
+    const widget = document.getElementById('widget');
     const backdrop = document.getElementById('backdrop');
-    const sideTab = document.getElementById('sideTab');
     const closeBtn = document.getElementById('closeBtn');
+    const resetBtn = document.getElementById('resetBtn');
 
     const chat = document.getElementById('chat');
     const inp = document.getElementById('inp');
@@ -443,8 +471,6 @@
 
     const headerTitle = document.getElementById('headerTitle');
     const headerSub = document.getElementById('headerSub');
-    const tabSub = document.getElementById('tabSub');
-    const resetTop = document.getElementById('resetTop');
 
     function getParam(name) {
       const u = new URL(window.location.href);
@@ -453,6 +479,7 @@
     function normalizeSlug(value) {
       if (!value) return "";
       return value.toLowerCase().trim()
+        .replace(/%20/g, "-")
         .replace(/\s+/g, "-")
         .replace(/[^a-z0-9\-]/g, "");
     }
@@ -465,37 +492,31 @@
       return normalizeSlug(getParam("obec") || "radim") || "radim";
     }
 
-    // ===== skin background =====
     let slug = inferSlugFromUrl();
 
-    (function applySkinBackground(){
+    // Apply skin background from /public/skins/<slug>.jpg
+    (function applySkin(){
       const url = `/skins/${slug}.jpg`;
-      // víc viditelné pozadí, ale pořád čitelné
-      document.body.style.backgroundImage =
-        `linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.55)), url("${url}")`;
-      document.body.style.backgroundSize = "cover";
-      document.body.style.backgroundPosition = "center";
-      document.body.style.backgroundAttachment = "fixed";
-      document.body.style.backgroundRepeat = "no-repeat";
+      document.body.style.setProperty('--skin-url', `url("${url}")`);
+      document.body.classList.add('has-skin');
     })();
 
-    // ===== open/close drawer =====
-    function openDrawer(){
-      drawer.classList.add('open');
+    function openWidget(){
+      widget.classList.add('open');
       backdrop.classList.add('open');
-      sideTab.classList.remove('blink');
+      launcher.classList.remove('pulse'); // po otevření přestaň pulsovat
       setTimeout(() => inp.focus(), 60);
     }
-    function closeDrawer(){
-      drawer.classList.remove('open');
+    function closeWidget(){
+      widget.classList.remove('open');
       backdrop.classList.remove('open');
     }
-    sideTab.addEventListener('click', openDrawer);
-    closeBtn.addEventListener('click', closeDrawer);
-    backdrop.addEventListener('click', closeDrawer);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+    launcher.addEventListener('click', openWidget);
+    closeBtn.addEventListener('click', closeWidget);
+    backdrop.addEventListener('click', closeWidget);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeWidget(); });
 
-    // ===== text helpers =====
+    // linkify
     function linkify(text) {
       const urlRegex = /(https?:\/\/[^\s)]+)\b/g;
       return String(text).replace(urlRegex, (url) => {
@@ -503,6 +524,8 @@
         return `<a href="${safe}" target="_blank" rel="noopener noreferrer">${url}</a>`;
       });
     }
+
+    // sanitize (frontend pojistka)
     function sanitizeAnswerFront(text){
       if (!text) return text;
       return String(text)
@@ -524,7 +547,7 @@
       chat.scrollTop = chat.scrollHeight;
     }
 
-    // ===== registry =====
+    // registry
     async function loadRegistry() {
       try {
         const res = await fetch('/registry/municipalities.json', { cache: 'no-store' });
@@ -547,7 +570,7 @@
     }
 
     // thread per slug
-    const THREAD_KEY = () => `municipality_thread_id_v4_${slug}`;
+    const THREAD_KEY = () => `municipality_thread_id_v5_${slug}`;
     let threadId = localStorage.getItem(THREAD_KEY()) || null;
 
     async function initMunicipality() {
@@ -555,9 +578,8 @@
       const m = pickMunicipality(reg, slug);
       const displayName = m?.name || slug;
 
-      headerTitle.textContent = `Ukázka DEMO pro obec: ${displayName}`;
+      headerTitle.textContent = `Ukázka pro obec: ${displayName}`;
       headerSub.textContent = "Zeptejte se na kontakty, úřední hodiny, odpady, poplatky…";
-      tabSub.textContent = displayName;
 
       add('ai', `Dobrý den 👋 Jsem ukázkový AI asistent pro obec ${displayName}. Jak vám mohu pomoci?`);
     }
@@ -594,6 +616,7 @@
         } else {
           const answer = sanitizeAnswerFront(data.answer || '');
           add('ai', answer || 'Omlouvám se, nepodařilo se mi najít odpověď.');
+
           if (data.thread_id) {
             threadId = data.thread_id;
             localStorage.setItem(THREAD_KEY(), threadId);
@@ -615,7 +638,7 @@
 
     document.querySelectorAll('[data-q]').forEach(el => {
       el.addEventListener('click', () => {
-        openDrawer();
+        openWidget();
         ask(el.getAttribute('data-q'));
       });
     });
@@ -627,9 +650,9 @@
       add('ai', `Resetováno. Zeptejte se znovu (obec: ${slug}).`);
       inp.focus();
     }
-    resetTop.addEventListener('click', resetConversation);
+    resetBtn.addEventListener('click', resetConversation);
 
-    // auto init
+    // init
     initMunicipality();
   </script>
 </body>
