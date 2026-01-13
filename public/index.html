@@ -7,18 +7,21 @@
 
   <style>
     :root{
+      --accent:#1f6fff;            /* modrá jako “Poradíme!” */
+      --accent2:#0ea5ff;
       --bg:#0b1220;
-      --text:#e8eefc;
-      --muted:rgba(232,238,252,.72);
-      --border:rgba(255,255,255,.10);
-      --accent:#00E5FF;
+      --text:#0b1220;
+      --muted:#5b6678;
 
-      --glass: rgba(10,18,32,.72);
-      --panel: rgba(15,26,51,.92);
+      --card:#ffffff;
+      --card2:#f6f8fb;
+      --border:rgba(20,30,45,.10);
 
-      --shadow: 0 22px 60px rgba(0,0,0,.55);
-      --shadowSoft: 0 14px 40px rgba(0,0,0,.42);
+      --shadow: 0 18px 60px rgba(0,0,0,.28);
+      --shadow2: 0 10px 24px rgba(0,0,0,.18);
+
       --radius: 18px;
+      --radius2: 14px;
     }
 
     *{ box-sizing:border-box; }
@@ -26,18 +29,16 @@
     body{
       margin:0;
       font-family: system-ui, -apple-system, Arial, sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 700px at 20% 0%, rgba(0,229,255,.12), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)),
-        var(--bg);
+      background: #0b1220;
+      color: #e8eefc;
       overflow-x:hidden;
     }
 
-    /* ======= Background skin (homepage screenshot) ======= */
+    /* ======= background skin ======= */
     body.has-skin{
       background-image:
-        linear-gradient(180deg, rgba(0,0,0,.16), rgba(0,0,0,.62)),
+        radial-gradient(900px 520px at 70% 0%, rgba(31,111,255,.22), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.60)),
         var(--skin-url);
       background-size: cover;
       background-position: center;
@@ -45,422 +46,468 @@
       background-repeat: no-repeat;
     }
 
-    /* ======= Page content (jen aby stránka nebyla prázdná) ======= */
-    .hero{
+    /* ======= demo header (jen aby stránka nebyla prázdná) ======= */
+    .demoTop{
       max-width: 980px;
       margin: 0 auto;
-      padding: 28px 18px 18px;
+      padding: 20px 16px;
     }
-    .heroCard{
-      background: rgba(15,26,51,.55);
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px 16px;
+    .demoCard{
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 18px;
+      padding: 14px 14px;
       backdrop-filter: blur(10px);
-      box-shadow: var(--shadowSoft);
+      box-shadow: 0 14px 36px rgba(0,0,0,.26);
     }
-    .heroH1{
+    .demoTitle{
       margin:0 0 6px;
-      font-size: 18px;
+      font-size: 16px;
+      font-weight: 800;
       letter-spacing:.2px;
     }
-    .heroP{
+    .demoSub{
       margin:0;
-      color: var(--muted);
       font-size: 13px;
-      line-height: 1.45;
-      max-width: 740px;
+      opacity:.85;
+      line-height:1.45;
     }
-    .heroHint{
-      margin-top: 10px;
-      color: rgba(232,238,252,.62);
+    .demoHint{
+      margin-top: 8px;
       font-size: 12px;
+      opacity:.75;
     }
-    code{ opacity:.9; }
+    code{ opacity:.95; }
 
-    /* ==========================
-       INTERCOM-LIKE LAUNCHER TAB
-       ========================== */
-    .launcherTab{
+    /* =============================
+       Bubble button (collapsed)
+       ============================= */
+    .bubbleBtn{
       position: fixed;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
+      right: 18px;
+      bottom: 18px;
       z-index: 9999;
-
-      width: 56px;
-      height: 124px;
-      border-radius: 18px 0 0 18px;
-
       display:flex;
-      flex-direction:column;
       align-items:center;
-      justify-content:center;
       gap:10px;
+      padding: 10px 12px 10px 10px;
+
+      border-radius: 999px;
+      background: rgba(255,255,255,.94);
+      color: #0b1220;
+      border: 1px solid rgba(20,30,45,.10);
+      box-shadow: var(--shadow2);
 
       cursor:pointer;
       user-select:none;
-
-      background: rgba(10,18,32,.70);
-      backdrop-filter: blur(12px);
-      border:1px solid rgba(255,255,255,.10);
-      border-right: none;
-
-      box-shadow: 0 18px 55px rgba(0,0,0,.55);
-      transition: background .15s ease, border-color .15s ease, transform .15s ease;
-      overflow:hidden;
+      transition: transform .12s ease, box-shadow .12s ease;
     }
-    .launcherTab:hover{
-      background: rgba(10,18,32,.84);
-      border-color: rgba(0,229,255,.20);
-      transform: translateY(-50%) translateX(-1px);
+    .bubbleBtn:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(0,0,0,.22);
     }
-    .launcherIcon{
+    .bubbleIcon{
       width: 38px;
       height: 38px;
       border-radius: 14px;
       display:flex;
       align-items:center;
       justify-content:center;
-      background: rgba(0,229,255,.12);
-      border:1px solid rgba(0,229,255,.18);
+      background: linear-gradient(180deg, rgba(31,111,255,.18), rgba(31,111,255,.06));
+      border: 1px solid rgba(31,111,255,.18);
       font-size: 18px;
+      flex:0 0 auto;
     }
-    .launcherLabel{
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      font-size: 11px;
-      letter-spacing:.18em;
-      text-transform: uppercase;
-      color: rgba(232,238,252,.78);
-      opacity:.95;
+    .bubbleText{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+    }
+    .bubbleText strong{
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing:.1px;
+    }
+    .bubbleText span{
+      font-size: 12px;
+      color: rgba(11,18,32,.62);
+    }
+    .bubbleCta{
+      margin-left: 6px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+      font-size: 12px;
+      border: 0;
     }
 
-    /* jemné pulsování */
+    /* jemné “bliknutí” jako pozvánka */
     .pulse{
-      animation: pulseGlow 3.2s ease-in-out infinite;
+      animation: pulse 3.1s ease-in-out infinite;
     }
-    @keyframes pulseGlow{
-      0%,100% {
-        box-shadow: 0 18px 55px rgba(0,0,0,.55), 0 0 0 rgba(0,229,255,0);
-      }
-      50% {
-        box-shadow: 0 18px 55px rgba(0,0,0,.55), 0 0 22px rgba(0,229,255,.22);
-      }
+    @keyframes pulse{
+      0%,100%{ box-shadow: var(--shadow2); }
+      50%{ box-shadow: var(--shadow2), 0 0 22px rgba(31,111,255,.28); }
     }
 
-    /* ==========================
-       FLOATING WIDGET (NOT FULL HEIGHT)
-       ========================== */
-    .backdrop{
+    /* =============================
+       Chat panel (expanded)
+       ============================= */
+    .overlay{
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.35);
+      background: rgba(0,0,0,.32);
       z-index: 9998;
-      opacity: 0;
+      opacity:0;
       pointer-events:none;
-      transition: opacity .18s ease;
+      transition: opacity .16s ease;
     }
-    .backdrop.open{
+    .overlay.open{
       opacity:1;
       pointer-events:auto;
     }
 
-    .widget{
+    .panel{
       position: fixed;
       right: 18px;
       bottom: 18px;
       z-index: 9999;
 
-      width: min(420px, calc(100vw - 30px));
-      height: min(640px, calc(100vh - 110px));
+      width: min(392px, calc(100vw - 28px));
+      height: min(620px, calc(100vh - 28px));
 
+      background: rgba(255,255,255,.96);
+      border: 1px solid rgba(20,30,45,.10);
       border-radius: 22px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(15,26,51,.92);
-      backdrop-filter: blur(14px);
       box-shadow: var(--shadow);
+      overflow:hidden;
 
       display:flex;
       flex-direction:column;
 
-      transform: translateY(12px);
-      opacity: 0;
+      transform: translateY(14px);
+      opacity:0;
       pointer-events:none;
-      transition: opacity .18s ease, transform .18s ease;
-      overflow:hidden;
+      transition: opacity .16s ease, transform .16s ease;
     }
-    .widget.open{
+    .panel.open{
       opacity:1;
       transform: translateY(0);
       pointer-events:auto;
     }
 
-    /* header */
-    .wHeader{
+    /* top bar */
+    .topbar{
       padding: 12px 12px 10px;
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0));
-      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(31,111,255,.10), rgba(255,255,255,0));
+      border-bottom: 1px solid rgba(20,30,45,.08);
+      color: var(--text);
     }
-    .wHeaderRow{
+    .topRow{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
     }
-    .wLeft{
+    .brand{
       display:flex;
       align-items:center;
       gap:10px;
       min-width:0;
     }
-    .wLogo{
-      width: 38px;
-      height: 38px;
+    .brandLogo{
+      width: 36px;
+      height: 36px;
       border-radius: 14px;
       display:flex;
       align-items:center;
       justify-content:center;
-      background: rgba(0,229,255,.12);
-      border:1px solid rgba(0,229,255,.18);
-      font-size: 18px;
+      background: linear-gradient(180deg, rgba(31,111,255,.18), rgba(31,111,255,.06));
+      border: 1px solid rgba(31,111,255,.18);
       flex:0 0 auto;
+      overflow:hidden;
     }
-    .wTitleWrap{ min-width:0; }
-    .wTitle{
-      font-weight: 850;
+    .brandLogo img{ width: 24px; height: 24px; object-fit: contain; }
+    .brandText{
+      min-width:0;
+    }
+    .brandTitle{
+      font-weight: 900;
       font-size: 13px;
-      letter-spacing:.2px;
       white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
-      max-width: 240px;
+      max-width: 230px;
+      letter-spacing:.1px;
     }
-    .wSub{
+    .brandSub{
       font-size: 12px;
-      color: var(--muted);
+      color: rgba(11,18,32,.55);
       margin-top: 2px;
       white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
-      max-width: 240px;
+      max-width: 230px;
     }
-    .wRight{
+
+    .topActions{
       display:flex;
       align-items:center;
       gap:8px;
       flex:0 0 auto;
     }
-    .badge{
+    .pill{
       font-size: 11px;
       padding: 6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
+      border-radius: 999px;
+      border: 1px solid rgba(20,30,45,.10);
+      background: rgba(255,255,255,.75);
+      color: rgba(11,18,32,.70);
+      font-weight: 800;
     }
     .iconBtn{
       width: 34px;
       height: 34px;
       border-radius: 12px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
+      border: 1px solid rgba(20,30,45,.10);
+      background: rgba(255,255,255,.75);
+      color: rgba(11,18,32,.85);
       cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      transition: background .12s ease, border-color .12s ease;
-    }
-    .iconBtn:hover{
-      background: rgba(255,255,255,.09);
-      border-color: rgba(0,229,255,.18);
-    }
-
-    /* chips */
-    .chips{
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      background: rgba(0,0,0,.08);
-    }
-    .chip{
-      padding: 7px 10px;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius: 999px;
-      background: rgba(255,255,255,.05);
-      cursor:pointer;
-      user-select:none;
-      font-size: 12px;
-      transition: background .12s ease, border-color .12s ease, transform .08s ease;
-    }
-    .chip:hover{
-      background: rgba(255,255,255,.08);
-      border-color: rgba(0,229,255,.16);
-    }
-    .chip:active{ transform: scale(.98); }
-
-    /* chat area */
-    .chat{
-      flex:1;
-      overflow:auto;
-      padding: 14px 12px 16px;
-      background: rgba(8,16,42,.50);
-    }
-    .chat::-webkit-scrollbar{ width: 10px; }
-    .chat::-webkit-scrollbar-thumb{
-      background: rgba(255,255,255,.10);
-      border-radius: 999px;
-      border: 2px solid rgba(8,16,42,.50);
-    }
-
-    .msg{ margin: 10px 0; display:flex; }
-    .msg.user{ justify-content:flex-end; }
-
-    .bubble{
-      max-width: 86%;
-      padding: 10px 12px;
-      border-radius: 16px;
-      line-height: 1.35;
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 13px;
-      border: 1px solid rgba(255,255,255,.10);
-      box-shadow: 0 10px 25px rgba(0,0,0,.18);
-    }
-    .user .bubble{
-      background: rgba(0,229,255,.10);
-      border-color: rgba(0,229,255,.18);
-    }
-    .ai .bubble{
-      background: rgba(255,255,255,.06);
-      border-color: rgba(255,255,255,.12);
-    }
-    .bubble a{ color: var(--accent); text-decoration: none; }
-    .bubble a:hover{ text-decoration: underline; }
-
-    /* input */
-    .inputWrap{
-      padding: 12px;
-      border-top: 1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.10);
-    }
-    .inputRow{
-      display:flex;
-      gap:10px;
-      align-items:center;
-    }
-    input{
-      flex:1;
-      padding: 12px 12px;
-      border-radius: 14px;
-      border:1px solid rgba(255,255,255,0.14);
-      background:#071026;
-      color: var(--text);
-      outline:none;
-      font-size: 13px;
-    }
-    input:focus{
-      border-color: rgba(0,229,255,.30);
-      box-shadow: 0 0 0 4px rgba(0,229,255,.10);
-    }
-    .sendBtn{
-      width: 46px;
-      height: 46px;
-      border-radius: 16px;
-      border:1px solid rgba(0,229,255,0.28);
-      background: rgba(0,229,255,0.14);
-      color: var(--text);
-      cursor:pointer;
-      font-weight: 900;
       display:flex;
       align-items:center;
       justify-content:center;
       transition: transform .08s ease, background .12s ease;
     }
-    .sendBtn:hover{ background: rgba(0,229,255,0.18); }
-    .sendBtn:active{ transform: scale(.98); }
-    .sendBtn:disabled{ opacity:.6; cursor:not-allowed; }
+    .iconBtn:hover{ background: rgba(255,255,255,.92); }
+    .iconBtn:active{ transform: scale(.98); }
+
+    /* cards area (welcome + warning) */
+    .cards{
+      padding: 10px 12px 0;
+      background: rgba(255,255,255,.96);
+    }
+    .msgCard{
+      background: var(--card);
+      border: 1px solid rgba(20,30,45,.10);
+      border-radius: 16px;
+      box-shadow: 0 10px 26px rgba(0,0,0,.10);
+      padding: 10px 10px;
+      color: var(--text);
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+    .msgCard + .msgCard{ margin-top: 10px; }
+    .msgCard .tag{
+      display:inline-block;
+      font-size: 11px;
+      font-weight: 900;
+      color: rgba(11,18,32,.70);
+      margin-bottom: 6px;
+    }
+
+    .warning{
+      border: 2px solid rgba(255,90,90,.35);
+      background: linear-gradient(180deg, rgba(255,90,90,.10), rgba(255,255,255,1));
+    }
+    .warning .tag{
+      color: rgba(160,30,30,.92);
+    }
+
+    /* quick suggestions as “chips” */
+    .quick{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      padding: 10px 12px;
+      background: rgba(255,255,255,.96);
+      border-bottom: 1px solid rgba(20,30,45,.08);
+    }
+    .chip{
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(20,30,45,.10);
+      background: rgba(246,248,251,1);
+      color: rgba(11,18,32,.78);
+      font-size: 12px;
+      font-weight: 700;
+      cursor:pointer;
+      user-select:none;
+      transition: background .12s ease, transform .08s ease, border-color .12s ease;
+    }
+    .chip:hover{
+      background: rgba(31,111,255,.08);
+      border-color: rgba(31,111,255,.20);
+    }
+    .chip:active{ transform: scale(.98); }
+
+    /* chat log */
+    .chat{
+      flex: 1;
+      overflow:auto;
+      padding: 12px 12px 12px;
+      background: rgba(255,255,255,.96);
+    }
+    .row{
+      display:flex;
+      margin: 10px 0;
+    }
+    .row.user{ justify-content:flex-end; }
+    .bubble{
+      max-width: 86%;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(20,30,45,.10);
+      box-shadow: 0 10px 22px rgba(0,0,0,.08);
+      font-size: 13px;
+      line-height: 1.35;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
+      background: #fff;
+    }
+    .row.user .bubble{
+      background: linear-gradient(180deg, rgba(31,111,255,.18), rgba(31,111,255,.10));
+      border-color: rgba(31,111,255,.22);
+    }
+    .bubble a{ color: var(--accent); text-decoration:none; }
+    .bubble a:hover{ text-decoration:underline; }
+
+    /* input like Jičín pill */
+    .composer{
+      padding: 10px 12px 12px;
+      background: rgba(255,255,255,.96);
+      border-top: 1px solid rgba(20,30,45,.08);
+    }
+    .composerRow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(20,30,45,.10);
+      background: rgba(246,248,251,1);
+    }
+    .composerRow input{
+      flex:1;
+      border: 0;
+      outline:none;
+      background: transparent;
+      padding: 10px 10px;
+      font-size: 13px;
+      color: rgba(11,18,32,.90);
+    }
+    .send{
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      border: 0;
+      background: var(--accent);
+      color:#fff;
+      font-weight: 900;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 10px 24px rgba(31,111,255,.32);
+      transition: transform .08s ease, filter .12s ease;
+    }
+    .send:hover{ filter: brightness(1.02); }
+    .send:active{ transform: scale(.98); }
+    .send:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
 
     .status{
       margin-top: 8px;
       font-size: 12px;
-      color: rgba(232,238,252,.70);
+      color: rgba(11,18,32,.55);
       min-height: 16px;
     }
 
+    /* small */
     @media (max-width: 420px){
-      .widget{ right: 12px; bottom: 12px; height: min(620px, calc(100vh - 90px)); }
-      .wTitle, .wSub{ max-width: 190px; }
+      .bubbleBtn{ right: 12px; bottom: 12px; }
+      .panel{ right: 12px; bottom: 12px; height: min(640px, calc(100vh - 24px)); }
+      .brandTitle,.brandSub{ max-width: 200px; }
     }
   </style>
 </head>
 
 <body>
-  <div class="hero">
-    <div class="heroCard">
-      <div class="heroH1">AI asistent obce – DEMO</div>
-      <div class="heroP">
-        Ukázka chatu pro občany (kontakty, úřední hodiny, odpady, poplatky…). Otevřete chat boční lištou vpravo.
-      </div>
-      <div class="heroHint">
-        Tip: pošlete odkaz ve tvaru <code>/hradec-kralove/</code>, <code>/zeleznice/</code>, <code>/radim/</code>
-      </div>
+  <div class="demoTop">
+    <div class="demoCard">
+      <div class="demoTitle">AI asistent obce – DEMO</div>
+      <p class="demoSub">Ukázka chatu pro občany (kontakty, úřední hodiny, odpady, poplatky…). Otevřete chat tlačítkem vpravo dole.</p>
+      <div class="demoHint">Tip: pošlete odkaz ve tvaru <code>/hradec-kralove/</code>, <code>/zeleznice/</code>, <code>/radim/</code></div>
     </div>
   </div>
 
-  <!-- Launcher -->
-  <div id="launcher" class="launcherTab pulse" role="button" aria-label="Otevřít chat">
-    <div class="launcherIcon">🤖</div>
-    <div class="launcherLabel">asistent</div>
+  <!-- Collapsed bubble button -->
+  <div id="bubbleBtn" class="bubbleBtn pulse" role="button" aria-label="Otevřít chat">
+    <div class="bubbleIcon">🤖</div>
+    <div class="bubbleText">
+      <strong>Máte dotaz?</strong>
+      <span>Poradíme…</span>
+    </div>
+    <button class="bubbleCta" type="button">Poradíme!</button>
   </div>
 
-  <!-- Backdrop -->
-  <div id="backdrop" class="backdrop"></div>
+  <!-- overlay -->
+  <div id="overlay" class="overlay"></div>
 
-  <!-- Floating widget -->
-  <aside id="widget" class="widget" aria-label="Chat">
-    <div class="wHeader">
-      <div class="wHeaderRow">
-        <div class="wLeft">
-          <div class="wLogo" aria-hidden="true">🤖</div>
-          <div class="wTitleWrap">
-            <div class="wTitle" id="headerTitle">Ukázka pro obec</div>
-            <div class="wSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny, odpady…</div>
+  <!-- Expanded chat panel -->
+  <aside id="panel" class="panel" aria-label="Chat">
+    <div class="topbar">
+      <div class="topRow">
+        <div class="brand">
+          <div class="brandLogo" id="brandLogo" aria-hidden="true">🤖</div>
+          <div class="brandText">
+            <div class="brandTitle" id="brandTitle">AI asistent obce</div>
+            <div class="brandSub" id="brandSub">Ukázka DEMO pro obec…</div>
           </div>
         </div>
-        <div class="wRight">
-          <div class="badge">DEMO</div>
+        <div class="topActions">
+          <div class="pill">DEMO</div>
           <button class="iconBtn" id="resetBtn" type="button" title="Reset">↺</button>
           <button class="iconBtn" id="closeBtn" type="button" title="Zavřít">✕</button>
         </div>
       </div>
     </div>
 
-    <div class="chips">
+    <div class="cards">
+      <div class="msgCard" id="welcomeCard">
+        <div class="tag">Vítejte</div>
+        <div id="welcomeText">Jsem váš automatický asistent. Zeptejte se na to, co vás zajímá.</div>
+      </div>
+      <div class="msgCard warning">
+        <div class="tag">Upozornění</div>
+        Nevkládejte prosím do textu Vaše osobní údaje. Odpovědi generované AI mají pouze informativní charakter a pravdivost si ověřte na webu obce.
+      </div>
+    </div>
+
+    <div class="quick">
       <span class="chip" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
       <span class="chip" data-q="Jaký je kontakt na městský/obecní úřad?">Kontakt</span>
       <span class="chip" data-q="Kde je bioodpad a kdy je otevřeno?">Bioodpad</span>
-      <span class="chip" data-q="Jak se platí poplatek za odpad?">Poplatek za odpad</span>
+      <span class="chip" data-q="Jak se platí poplatek za odpad?">Poplatek</span>
       <span class="chip" data-q="Kde na webu najdu úřední desku?">Úřední deska</span>
     </div>
 
     <div id="chat" class="chat" aria-live="polite"></div>
 
-    <div class="inputWrap">
-      <div class="inputRow">
-        <input id="inp" type="text" placeholder="Napište dotaz…" autocomplete="off" />
-        <button class="sendBtn" id="send" type="button" aria-label="Odeslat">➤</button>
+    <div class="composer">
+      <div class="composerRow">
+        <input id="inp" type="text" placeholder="Pište zde…" autocomplete="off" />
+        <button id="send" class="send" type="button" aria-label="Odeslat">➤</button>
       </div>
       <div class="status" id="status"></div>
     </div>
   </aside>
 
   <script>
-    const launcher = document.getElementById('launcher');
-    const widget = document.getElementById('widget');
-    const backdrop = document.getElementById('backdrop');
+    const bubbleBtn = document.getElementById('bubbleBtn');
+    const panel = document.getElementById('panel');
+    const overlay = document.getElementById('overlay');
     const closeBtn = document.getElementById('closeBtn');
     const resetBtn = document.getElementById('resetBtn');
 
@@ -469,8 +516,10 @@
     const sendBtn = document.getElementById('send');
     const statusEl = document.getElementById('status');
 
-    const headerTitle = document.getElementById('headerTitle');
-    const headerSub = document.getElementById('headerSub');
+    const brandTitle = document.getElementById('brandTitle');
+    const brandSub = document.getElementById('brandSub');
+    const brandLogo = document.getElementById('brandLogo');
+    const welcomeText = document.getElementById('welcomeText');
 
     function getParam(name) {
       const u = new URL(window.location.href);
@@ -491,30 +540,29 @@
       }
       return normalizeSlug(getParam("obec") || "radim") || "radim";
     }
-
     let slug = inferSlugFromUrl();
 
-    // Apply skin background from /public/skins/<slug>.jpg
+    // background skin
     (function applySkin(){
       const url = `/skins/${slug}.jpg`;
       document.body.style.setProperty('--skin-url', `url("${url}")`);
       document.body.classList.add('has-skin');
     })();
 
-    function openWidget(){
-      widget.classList.add('open');
-      backdrop.classList.add('open');
-      launcher.classList.remove('pulse'); // po otevření přestaň pulsovat
-      setTimeout(() => inp.focus(), 60);
+    function openChat(){
+      panel.classList.add('open');
+      overlay.classList.add('open');
+      bubbleBtn.classList.remove('pulse');
+      setTimeout(() => inp.focus(), 70);
     }
-    function closeWidget(){
-      widget.classList.remove('open');
-      backdrop.classList.remove('open');
+    function closeChat(){
+      panel.classList.remove('open');
+      overlay.classList.remove('open');
     }
-    launcher.addEventListener('click', openWidget);
-    closeBtn.addEventListener('click', closeWidget);
-    backdrop.addEventListener('click', closeWidget);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeWidget(); });
+    bubbleBtn.addEventListener('click', openChat);
+    closeBtn.addEventListener('click', closeChat);
+    overlay.addEventListener('click', closeChat);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeChat(); });
 
     // linkify
     function linkify(text) {
@@ -525,8 +573,8 @@
       });
     }
 
-    // sanitize (frontend pojistka)
-    function sanitizeAnswerFront(text){
+    // sanitize (pojistka proti “Sources/404/【】”)
+    function sanitizeAnswer(text){
       if (!text) return text;
       return String(text)
         .replace(/【[^】]{1,200}】/g, "")
@@ -538,7 +586,7 @@
 
     function add(role, text) {
       const wrap = document.createElement('div');
-      wrap.className = 'msg ' + (role === 'user' ? 'user' : 'ai');
+      wrap.className = 'row ' + (role === 'user' ? 'user' : 'ai');
       const b = document.createElement('div');
       b.className = 'bubble';
       b.innerHTML = linkify(text);
@@ -547,7 +595,6 @@
       chat.scrollTop = chat.scrollHeight;
     }
 
-    // registry
     async function loadRegistry() {
       try {
         const res = await fetch('/registry/municipalities.json', { cache: 'no-store' });
@@ -559,71 +606,73 @@
     }
     function pickMunicipality(reg, slug) {
       if (!reg) return null;
-      if (Array.isArray(reg)) {
-        return reg.find(m => m && (m.slug === slug || m.id === slug)) || null;
-      }
-      if (Array.isArray(reg.municipalities)) {
-        return reg.municipalities.find(m => m && (m.slug === slug || m.id === slug)) || null;
-      }
+      if (Array.isArray(reg)) return reg.find(m => m && (m.slug === slug || m.id === slug)) || null;
+      if (Array.isArray(reg.municipalities)) return reg.municipalities.find(m => m && (m.slug === slug || m.id === slug)) || null;
       if (reg[slug]) return { slug, ...reg[slug] };
       return null;
     }
 
-    // thread per slug
-    const THREAD_KEY = () => `municipality_thread_id_v5_${slug}`;
+    const THREAD_KEY = () => `municipality_thread_id_v6_${slug}`;
     let threadId = localStorage.getItem(THREAD_KEY()) || null;
 
-    async function initMunicipality() {
+    async function init(){
       const reg = await loadRegistry();
       const m = pickMunicipality(reg, slug);
       const displayName = m?.name || slug;
 
-      headerTitle.textContent = `Ukázka pro obec: ${displayName}`;
-      headerSub.textContent = "Zeptejte se na kontakty, úřední hodiny, odpady, poplatky…";
+      brandTitle.textContent = "AI asistent obce";
+      brandSub.textContent = `Ukázka DEMO pro: ${displayName}`;
+      welcomeText.textContent = `Vítejte na stránkách obce ${displayName}. Jsem váš automatický asistent. Zeptejte se na to, co vás zajímá.`;
 
+      // logo: když má obec logo_url, použij; jinak 🤖
+      if (m?.logo_url) {
+        brandLogo.innerHTML = `<img src="${m.logo_url}" alt="logo" />`;
+      } else {
+        brandLogo.textContent = "🤖";
+      }
+
+      // první zpráva do chatu (není to “karta”, ale chat zpráva)
       add('ai', `Dobrý den 👋 Jsem ukázkový AI asistent pro obec ${displayName}. Jak vám mohu pomoci?`);
     }
 
-    async function ask(q) {
+    async function ask(q){
       const msg = (q ?? inp.value).trim();
       if (!msg) return;
+
+      openChat();
 
       add('user', msg);
       inp.value = '';
       sendBtn.disabled = true;
       statusEl.textContent = 'Generuje se odpověď…';
 
-      add('ai', 'Generuje se odpověď…');
+      add('ai', 'Chvilku…');
       const loadingEl = chat.lastElementChild;
 
-      try {
+      try{
         const res = await fetch('/.netlify/functions/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: msg,
-            thread_id: threadId,
-            obec: slug
-          })
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ message: msg, thread_id: threadId, obec: slug })
         });
 
         const data = await res.json().catch(() => ({}));
         if (loadingEl) loadingEl.remove();
 
-        if (!res.ok || !data.ok) {
+        if (!res.ok || !data.ok){
           add('ai', 'Omlouvám se, teď se mi nepodařilo odpovědět. Zkuste to prosím znovu.');
           statusEl.textContent = '';
         } else {
-          const answer = sanitizeAnswerFront(data.answer || '');
+          const answer = sanitizeAnswer(data.answer || '');
           add('ai', answer || 'Omlouvám se, nepodařilo se mi najít odpověď.');
 
-          if (data.thread_id) {
+          if (data.thread_id){
             threadId = data.thread_id;
             localStorage.setItem(THREAD_KEY(), threadId);
           }
           statusEl.textContent = '';
         }
-      } catch (e) {
+      } catch(e){
         if (loadingEl) loadingEl.remove();
         add('ai', 'Omlouvám se, došlo k chybě připojení. Zkuste to prosím znovu.');
         statusEl.textContent = '';
@@ -637,13 +686,10 @@
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') ask(); });
 
     document.querySelectorAll('[data-q]').forEach(el => {
-      el.addEventListener('click', () => {
-        openWidget();
-        ask(el.getAttribute('data-q'));
-      });
+      el.addEventListener('click', () => ask(el.getAttribute('data-q')));
     });
 
-    function resetConversation() {
+    function resetConversation(){
       localStorage.removeItem(THREAD_KEY());
       threadId = null;
       chat.innerHTML = '';
@@ -652,8 +698,7 @@
     }
     resetBtn.addEventListener('click', resetConversation);
 
-    // init
-    initMunicipality();
+    init();
   </script>
 </body>
 </html>
