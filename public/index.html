@@ -8,29 +8,34 @@
   <style>
     :root{
       --bg:#0b1220;
-      --panel:#0f1a33;
-      --panel2:#08102a;
       --text:#e8eefc;
       --muted:rgba(232,238,252,.72);
       --border:rgba(255,255,255,.10);
       --accent:#00E5FF;
-      --shadow: 0 20px 55px rgba(0,0,0,.55);
+
+      --glass: rgba(10,18,32,.68);
+      --glass2: rgba(10,18,32,.84);
+      --panel: rgba(15,26,51,.90);
+
+      --shadow: 0 24px 60px rgba(0,0,0,.55);
+      --shadowSoft: 0 16px 40px rgba(0,0,0,.42);
+      --radius: 18px;
     }
 
-    /* ===== Page background (skin) ===== */
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
     body{
       margin:0;
       font-family: system-ui, -apple-system, Arial, sans-serif;
       color:var(--text);
       background:
-        radial-gradient(1200px 600px at 30% 0%, rgba(0,229,255,.12), transparent 55%),
+        radial-gradient(1200px 700px at 20% 0%, rgba(0,229,255,.12), transparent 55%),
         linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)),
         var(--bg);
-      min-height:100vh;
       overflow-x:hidden;
     }
 
-    /* ===== Lightweight landing (so background is visible) ===== */
+    /* ---------- HERO (jen aby stránka nevypadala prázdně) ---------- */
     .hero{
       max-width: 980px;
       margin: 0 auto;
@@ -39,10 +44,10 @@
     .heroCard{
       background: rgba(15,26,51,.55);
       border:1px solid var(--border);
-      border-radius:18px;
+      border-radius: var(--radius);
       padding: 16px 16px;
       backdrop-filter: blur(10px);
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadowSoft);
     }
     .heroH1{
       margin:0 0 6px;
@@ -54,18 +59,20 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.45;
+      max-width: 720px;
     }
     .heroHint{
       margin-top: 10px;
       color: rgba(232,238,252,.62);
       font-size: 12px;
     }
+    code{ opacity:.9; }
 
-    /* ===== Side TAB launcher ===== */
+    /* ---------- LAUNCHER TAB (modern pill) ---------- */
     .sideTab{
       position: fixed;
-      right: 0;
-      top: 45%;
+      right: 12px;
+      top: 50%;
       transform: translateY(-50%);
       z-index: 9999;
 
@@ -73,64 +80,63 @@
       align-items:center;
       gap:10px;
 
-      padding: 12px 12px 12px 14px;
-      border-radius: 14px 0 0 14px;
-      border:1px solid rgba(0,229,255,.28);
-      border-right: none;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.12);
 
-      background: rgba(8,16,42,.88);
-      backdrop-filter: blur(8px);
+      background: var(--glass);
+      backdrop-filter: blur(12px);
       cursor:pointer;
       user-select:none;
 
-      box-shadow: 0 14px 40px rgba(0,0,0,.45);
-      transition: transform .15s ease, background .15s ease;
+      box-shadow: 0 14px 45px rgba(0,0,0,.45);
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
     }
     .sideTab:hover{
-      transform: translateY(-50%) translateX(-2px);
-      background: rgba(8,16,42,.94);
+      transform: translateY(-50%) scale(1.02);
+      background: var(--glass2);
+      border-color: rgba(0,229,255,.22);
     }
     .tabIcon{
-      width: 30px;
-      height: 30px;
-      border-radius: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
       display:flex;
       align-items:center;
       justify-content:center;
       background: rgba(0,229,255,.12);
-      border:1px solid rgba(0,229,255,.22);
-      font-size: 16px;
+      border:1px solid rgba(0,229,255,.18);
+      font-size: 17px;
       flex:0 0 auto;
     }
     .tabText{
       display:flex;
       flex-direction:column;
-      line-height:1.1;
-      padding-right: 6px;
+      line-height:1.15;
+      padding-right: 4px;
+      min-width:0;
     }
-    .tabText strong{
-      font-size: 12px;
-      letter-spacing: .2px;
-    }
+    .tabText strong{ font-size: 12px; letter-spacing:.2px; white-space:nowrap; }
     .tabText span{
       font-size: 11px;
-      color: rgba(232,238,252,.72);
+      color: rgba(232,238,252,.68);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      max-width: 160px;
     }
 
-    /* gentle blinking */
-    .blink{
-      animation: pulseGlow 2.4s ease-in-out infinite;
-    }
+    .blink{ animation: pulseGlow 2.7s ease-in-out infinite; }
     @keyframes pulseGlow{
-      0%, 100% { box-shadow: 0 14px 40px rgba(0,0,0,.45), 0 0 0 rgba(0,229,255,.00); }
-      50%      { box-shadow: 0 14px 40px rgba(0,0,0,.45), 0 0 18px rgba(0,229,255,.24); }
+      0%,100% { box-shadow: 0 14px 45px rgba(0,0,0,.45), 0 0 0 rgba(0,229,255,0); }
+      50%     { box-shadow: 0 14px 45px rgba(0,0,0,.45), 0 0 18px rgba(0,229,255,.22); }
     }
 
-    /* ===== Side chat drawer ===== */
+    /* ---------- BACKDROP + DRAWER ---------- */
     .drawerBackdrop{
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.35);
+      background: rgba(0,0,0,.38);
       z-index: 9998;
       opacity: 0;
       pointer-events: none;
@@ -156,20 +162,22 @@
 
       background: rgba(15,26,51,.92);
       border-left: 1px solid rgba(255,255,255,.10);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
       box-shadow: -20px 0 55px rgba(0,0,0,.55);
     }
-    .drawer.open{
-      transform: translateX(0);
-    }
+    .drawer.open{ transform: translateX(0); }
 
+    /* ---------- HEADER ---------- */
     .drawerHeader{
+      padding: 12px 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.00));
+    }
+    .hdrRow{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      padding: 12px 12px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
     }
     .hdrLeft{
       display:flex;
@@ -178,20 +186,18 @@
       min-width:0;
     }
     .hdrIcon{
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 14px;
       display:flex;
       align-items:center;
       justify-content:center;
-      background: rgba(0,229,255,.10);
+      background: rgba(0,229,255,.12);
       border:1px solid rgba(0,229,255,.18);
       font-size: 18px;
       flex:0 0 auto;
     }
-    .hdrText{
-      min-width:0;
-    }
+    .hdrText{ min-width:0; }
     .hdrTitle{
       font-weight: 800;
       font-size: 13px;
@@ -199,7 +205,7 @@
       white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
-      max-width: 280px;
+      max-width: 250px;
     }
     .hdrSub{
       font-size: 12px;
@@ -208,7 +214,7 @@
       white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
-      max-width: 280px;
+      max-width: 250px;
     }
     .hdrRight{
       display:flex;
@@ -218,46 +224,66 @@
     }
     .badge{
       font-size: 11px;
-      padding: 5px 9px;
+      padding: 6px 10px;
       border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.06);
     }
-    .btnGhost{
-      font-size: 12px;
-      padding: 8px 10px;
+    .iconBtn{
+      width: 34px;
+      height: 34px;
       border-radius: 12px;
       border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
+      background: rgba(255,255,255,.05);
       color: var(--text);
       cursor:pointer;
-      user-select:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition: background .12s ease, border-color .12s ease;
     }
-    .btnGhost:hover{ background: rgba(255,255,255,.07); }
+    .iconBtn:hover{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(0,229,255,.18);
+    }
 
+    /* ---------- CHIPS ---------- */
     .pillbar{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
-      padding: 10px 12px 8px;
+      padding: 10px 12px 10px;
       border-bottom: 1px solid rgba(255,255,255,.06);
     }
     .pill{
       padding: 7px 10px;
-      border:1px solid rgba(255,255,255,0.12);
-      border-radius:999px;
-      background: rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 999px;
+      background: rgba(255,255,255,.05);
       cursor:pointer;
       user-select:none;
       font-size: 12px;
+      transition: background .12s ease, border-color .12s ease, transform .08s ease;
     }
-    .pill:hover { background: rgba(255,255,255,0.07); }
+    .pill:hover{
+      background: rgba(255,255,255,.08);
+      border-color: rgba(0,229,255,.16);
+    }
+    .pill:active{ transform: scale(.98); }
 
+    /* ---------- CHAT AREA ---------- */
     .chat{
       flex: 1;
       overflow:auto;
-      padding: 12px;
-      background: rgba(8,16,42,.55);
+      padding: 14px 12px 16px;
+      background: rgba(8,16,42,.50);
+    }
+    /* nicer scrollbar */
+    .chat::-webkit-scrollbar{ width: 10px; }
+    .chat::-webkit-scrollbar-thumb{
+      background: rgba(255,255,255,.10);
+      border-radius: 999px;
+      border: 2px solid rgba(8,16,42,.50);
     }
 
     .msg{ margin: 10px 0; display:flex; }
@@ -266,55 +292,79 @@
     .bubble{
       max-width: 86%;
       padding: 10px 12px;
-      border-radius: 14px;
+      border-radius: 16px;
       line-height: 1.35;
       white-space: pre-wrap;
       word-break: break-word;
-      border:1px solid rgba(255,255,255,.10);
       font-size: 13px;
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: 0 10px 25px rgba(0,0,0,.18);
     }
     .user .bubble{
-      background: rgba(255,255,255,.06);
-      border-color: rgba(0,229,255,0.20);
+      background: rgba(0,229,255,.10);
+      border-color: rgba(0,229,255,.18);
     }
     .ai .bubble{
-      background: rgba(0,229,255,.08);
-      border-color: rgba(0,229,255,.14);
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.12);
     }
     .bubble a{ color: var(--accent); text-decoration: none; }
     .bubble a:hover{ text-decoration: underline; }
 
-    .inputRow{
-      display:flex;
-      gap:10px;
+    /* ---------- INPUT ---------- */
+    .inputWrap{
       padding: 12px;
       border-top: 1px solid rgba(255,255,255,.08);
       background: rgba(0,0,0,.10);
     }
+    .inputRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
     input{
       flex:1;
-      padding: 12px;
-      border-radius: 12px;
+      padding: 12px 12px;
+      border-radius: 14px;
       border:1px solid rgba(255,255,255,0.14);
       background:#071026;
       color: var(--text);
       outline:none;
+      font-size: 13px;
+    }
+    input:focus{
+      border-color: rgba(0,229,255,.30);
+      box-shadow: 0 0 0 4px rgba(0,229,255,.10);
     }
     .sendBtn{
-      padding: 12px 14px;
-      border-radius: 12px;
-      border:1px solid rgba(0,229,255,0.35);
-      background: rgba(0,229,255,0.10);
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      border:1px solid rgba(0,229,255,0.28);
+      background: rgba(0,229,255,0.14);
       color: var(--text);
       cursor:pointer;
-      font-weight: 800;
+      font-weight: 900;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition: transform .08s ease, background .12s ease;
     }
+    .sendBtn:hover{ background: rgba(0,229,255,0.18); }
+    .sendBtn:active{ transform: scale(.98); }
     .sendBtn:disabled{ opacity:.6; cursor:not-allowed; }
 
     .status{
-      padding: 0 12px 12px;
+      margin-top: 8px;
       font-size: 12px;
       color: rgba(232,238,252,.70);
+      min-height: 16px;
+    }
+
+    /* ---------- small screens ---------- */
+    @media (max-width: 420px){
+      .tabText{ display:none; }
+      .hdrTitle, .hdrSub{ max-width: 180px; }
     }
   </style>
 </head>
@@ -341,22 +391,23 @@
     </div>
   </div>
 
-  <!-- Backdrop + Drawer -->
   <div id="backdrop" class="drawerBackdrop"></div>
 
   <aside id="drawer" class="drawer" aria-label="Chat">
     <div class="drawerHeader">
-      <div class="hdrLeft">
-        <div class="hdrIcon" aria-hidden="true">🤖</div>
-        <div class="hdrText">
-          <div class="hdrTitle" id="headerTitle">Ukázka DEMO pro obec</div>
-          <div class="hdrSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny, odpady…</div>
+      <div class="hdrRow">
+        <div class="hdrLeft">
+          <div class="hdrIcon" aria-hidden="true">🤖</div>
+          <div class="hdrText">
+            <div class="hdrTitle" id="headerTitle">Ukázka DEMO pro obec</div>
+            <div class="hdrSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny, odpady…</div>
+          </div>
         </div>
-      </div>
-      <div class="hdrRight">
-        <div class="badge">DEMO</div>
-        <button class="btnGhost" id="resetTop" type="button">Reset</button>
-        <button class="btnGhost" id="closeBtn" type="button">✕</button>
+        <div class="hdrRight">
+          <div class="badge">DEMO</div>
+          <button class="iconBtn" id="resetTop" type="button" title="Reset">↺</button>
+          <button class="iconBtn" id="closeBtn" type="button" title="Zavřít">✕</button>
+        </div>
       </div>
     </div>
 
@@ -370,12 +421,13 @@
 
     <div id="chat" class="chat" aria-live="polite"></div>
 
-    <div class="inputRow">
-      <input id="inp" type="text" placeholder="Napište dotaz…" autocomplete="off" />
-      <button class="sendBtn" id="send" type="button">Odeslat</button>
+    <div class="inputWrap">
+      <div class="inputRow">
+        <input id="inp" type="text" placeholder="Napište dotaz…" autocomplete="off" />
+        <button class="sendBtn" id="send" type="button" aria-label="Odeslat">➤</button>
+      </div>
+      <div class="status" id="status"></div>
     </div>
-
-    <div class="status" id="status"></div>
   </aside>
 
   <script>
@@ -413,21 +465,37 @@
       return normalizeSlug(getParam("obec") || "radim") || "radim";
     }
 
-    // ===== Skin background =====
+    // ===== skin background =====
     let slug = inferSlugFromUrl();
 
     (function applySkinBackground(){
       const url = `/skins/${slug}.jpg`;
-
+      // víc viditelné pozadí, ale pořád čitelné
       document.body.style.backgroundImage =
-        `linear-gradient(180deg, rgba(0,0,0,.26), rgba(0,0,0,.64)), url("${url}")`;
+        `linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.55)), url("${url}")`;
       document.body.style.backgroundSize = "cover";
       document.body.style.backgroundPosition = "center";
       document.body.style.backgroundAttachment = "fixed";
       document.body.style.backgroundRepeat = "no-repeat";
     })();
 
-    // linkify URL
+    // ===== open/close drawer =====
+    function openDrawer(){
+      drawer.classList.add('open');
+      backdrop.classList.add('open');
+      sideTab.classList.remove('blink');
+      setTimeout(() => inp.focus(), 60);
+    }
+    function closeDrawer(){
+      drawer.classList.remove('open');
+      backdrop.classList.remove('open');
+    }
+    sideTab.addEventListener('click', openDrawer);
+    closeBtn.addEventListener('click', closeDrawer);
+    backdrop.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+
+    // ===== text helpers =====
     function linkify(text) {
       const urlRegex = /(https?:\/\/[^\s)]+)\b/g;
       return String(text).replace(urlRegex, (url) => {
@@ -456,6 +524,7 @@
       chat.scrollTop = chat.scrollHeight;
     }
 
+    // ===== registry =====
     async function loadRegistry() {
       try {
         const res = await fetch('/registry/municipalities.json', { cache: 'no-store' });
@@ -478,33 +547,10 @@
     }
 
     // thread per slug
-    const THREAD_KEY = () => `municipality_thread_id_v3_${slug}`;
+    const THREAD_KEY = () => `municipality_thread_id_v4_${slug}`;
     let threadId = localStorage.getItem(THREAD_KEY()) || null;
 
-    // ===== Drawer open/close =====
-    function openDrawer(){
-      drawer.classList.add('open');
-      backdrop.classList.add('open');
-      sideTab.classList.remove('blink'); // přestane blikat po prvním otevření
-      setTimeout(() => inp.focus(), 50);
-    }
-    function closeDrawer(){
-      drawer.classList.remove('open');
-      backdrop.classList.remove('open');
-    }
-
-    sideTab.addEventListener('click', openDrawer);
-    closeBtn.addEventListener('click', closeDrawer);
-    backdrop.addEventListener('click', closeDrawer);
-
-    // ESC closes
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeDrawer();
-    });
-
     async function initMunicipality() {
-      statusEl.textContent = "";
-
       const reg = await loadRegistry();
       const m = pickMunicipality(reg, slug);
       const displayName = m?.name || slug;
@@ -568,7 +614,10 @@
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') ask(); });
 
     document.querySelectorAll('[data-q]').forEach(el => {
-      el.addEventListener('click', () => ask(el.getAttribute('data-q')));
+      el.addEventListener('click', () => {
+        openDrawer();
+        ask(el.getAttribute('data-q'));
+      });
     });
 
     function resetConversation() {
@@ -580,7 +629,7 @@
     }
     resetTop.addEventListener('click', resetConversation);
 
-    // Init
+    // auto init
     initMunicipality();
   </script>
 </body>
