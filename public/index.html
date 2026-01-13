@@ -14,52 +14,172 @@
       --muted:rgba(232,238,252,.72);
       --border:rgba(255,255,255,.10);
       --accent:#00E5FF;
-      --accent2:rgba(0,229,255,.16);
       --shadow: 0 20px 55px rgba(0,0,0,.55);
     }
 
+    /* ===== Page background (skin) ===== */
     body{
-      font-family: system-ui, -apple-system, Arial, sans-serif;
       margin:0;
-      background: radial-gradient(1200px 600px at 30% 0%, rgba(0,229,255,.12), transparent 55%),
-                  linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)),
-                  var(--bg);
+      font-family: system-ui, -apple-system, Arial, sans-serif;
       color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 30% 0%, rgba(0,229,255,.12), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)),
+        var(--bg);
+      min-height:100vh;
+      overflow-x:hidden;
     }
 
-    .wrap{ max-width: 980px; margin: 0 auto; padding: 24px; }
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+    /* ===== Lightweight landing (so background is visible) ===== */
+    .hero{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 18px;
+    }
+    .heroCard{
+      background: rgba(15,26,51,.55);
       border:1px solid var(--border);
       border-radius:18px;
-      padding: 18px;
+      padding: 16px 16px;
+      backdrop-filter: blur(10px);
       box-shadow: var(--shadow);
     }
-
-    /* ======= CHAT HEADER (to co chceš) ======= */
-    .chatHeader{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      padding: 10px 12px;
-      border:1px solid var(--border);
-      border-radius:16px;
-      background: rgba(0,0,0,.18);
-      backdrop-filter: blur(6px);
-      margin-bottom: 12px;
+    .heroH1{
+      margin:0 0 6px;
+      font-size: 18px;
+      letter-spacing:.2px;
+    }
+    .heroP{
+      margin:0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .heroHint{
+      margin-top: 10px;
+      color: rgba(232,238,252,.62);
+      font-size: 12px;
     }
 
-    .chLeft{
+    /* ===== Side TAB launcher ===== */
+    .sideTab{
+      position: fixed;
+      right: 0;
+      top: 45%;
+      transform: translateY(-50%);
+      z-index: 9999;
+
+      display:flex;
+      align-items:center;
+      gap:10px;
+
+      padding: 12px 12px 12px 14px;
+      border-radius: 14px 0 0 14px;
+      border:1px solid rgba(0,229,255,.28);
+      border-right: none;
+
+      background: rgba(8,16,42,.88);
+      backdrop-filter: blur(8px);
+      cursor:pointer;
+      user-select:none;
+
+      box-shadow: 0 14px 40px rgba(0,0,0,.45);
+      transition: transform .15s ease, background .15s ease;
+    }
+    .sideTab:hover{
+      transform: translateY(-50%) translateX(-2px);
+      background: rgba(8,16,42,.94);
+    }
+    .tabIcon{
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,229,255,.12);
+      border:1px solid rgba(0,229,255,.22);
+      font-size: 16px;
+      flex:0 0 auto;
+    }
+    .tabText{
+      display:flex;
+      flex-direction:column;
+      line-height:1.1;
+      padding-right: 6px;
+    }
+    .tabText strong{
+      font-size: 12px;
+      letter-spacing: .2px;
+    }
+    .tabText span{
+      font-size: 11px;
+      color: rgba(232,238,252,.72);
+    }
+
+    /* gentle blinking */
+    .blink{
+      animation: pulseGlow 2.4s ease-in-out infinite;
+    }
+    @keyframes pulseGlow{
+      0%, 100% { box-shadow: 0 14px 40px rgba(0,0,0,.45), 0 0 0 rgba(0,229,255,.00); }
+      50%      { box-shadow: 0 14px 40px rgba(0,0,0,.45), 0 0 18px rgba(0,229,255,.24); }
+    }
+
+    /* ===== Side chat drawer ===== */
+    .drawerBackdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.35);
+      z-index: 9998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease;
+    }
+    .drawerBackdrop.open{
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer{
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: min(420px, 92vw);
+      z-index: 9999;
+
+      transform: translateX(100%);
+      transition: transform .22s ease;
+      display:flex;
+      flex-direction:column;
+
+      background: rgba(15,26,51,.92);
+      border-left: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(10px);
+      box-shadow: -20px 0 55px rgba(0,0,0,.55);
+    }
+    .drawer.open{
+      transform: translateX(0);
+    }
+
+    .drawerHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .hdrLeft{
       display:flex;
       align-items:center;
       gap:10px;
       min-width:0;
     }
-
-    .logoBox{
-      width: 36px;
-      height: 36px;
+    .hdrIcon{
+      width: 34px;
+      height: 34px;
       border-radius: 12px;
       display:flex;
       align-items:center;
@@ -69,47 +189,40 @@
       font-size: 18px;
       flex:0 0 auto;
     }
-
-    .chTitleWrap{
+    .hdrText{
       min-width:0;
     }
-
-    .chTitle{
+    .hdrTitle{
       font-weight: 800;
       font-size: 13px;
-      letter-spacing: .2px;
+      letter-spacing:.2px;
       white-space: nowrap;
-      overflow: hidden;
+      overflow:hidden;
       text-overflow: ellipsis;
-      max-width: 560px;
+      max-width: 280px;
     }
-
-    .chSub{
+    .hdrSub{
       font-size: 12px;
       color: var(--muted);
       margin-top: 2px;
       white-space: nowrap;
-      overflow: hidden;
+      overflow:hidden;
       text-overflow: ellipsis;
-      max-width: 560px;
+      max-width: 280px;
     }
-
-    .chRight{
+    .hdrRight{
       display:flex;
       align-items:center;
       gap:8px;
       flex:0 0 auto;
     }
-
     .badge{
       font-size: 11px;
       padding: 5px 9px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.06);
-      color: var(--text);
     }
-
     .btnGhost{
       font-size: 12px;
       padding: 8px 10px;
@@ -120,11 +233,15 @@
       cursor:pointer;
       user-select:none;
     }
-
     .btnGhost:hover{ background: rgba(255,255,255,.07); }
 
-    /* ======= Pills ======= */
-    .pillbar{ display:flex; gap:10px; flex-wrap:wrap; margin: 8px 0 10px; }
+    .pillbar{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
     .pill{
       padding: 7px 10px;
       border:1px solid rgba(255,255,255,0.12);
@@ -134,16 +251,13 @@
       user-select:none;
       font-size: 12px;
     }
-    .pill:hover{ background: rgba(255,255,255,0.07); }
+    .pill:hover { background: rgba(255,255,255,0.07); }
 
-    /* ======= Chat ======= */
     .chat{
-      height: 58vh;
+      flex: 1;
       overflow:auto;
       padding: 12px;
-      background: var(--panel2);
-      border-radius:16px;
-      border:1px solid var(--border);
+      background: rgba(8,16,42,.55);
     }
 
     .msg{ margin: 10px 0; display:flex; }
@@ -156,25 +270,27 @@
       line-height: 1.35;
       white-space: pre-wrap;
       word-break: break-word;
-      border:1px solid var(--border);
+      border:1px solid rgba(255,255,255,.10);
       font-size: 13px;
     }
-
     .user .bubble{
       background: rgba(255,255,255,.06);
       border-color: rgba(0,229,255,0.20);
     }
-
     .ai .bubble{
       background: rgba(0,229,255,.08);
       border-color: rgba(0,229,255,.14);
     }
-
     .bubble a{ color: var(--accent); text-decoration: none; }
     .bubble a:hover{ text-decoration: underline; }
 
-    /* ======= Input ======= */
-    .row{ display:flex; gap:10px; margin-top: 12px; }
+    .inputRow{
+      display:flex;
+      gap:10px;
+      padding: 12px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.10);
+    }
     input{
       flex:1;
       padding: 12px;
@@ -184,73 +300,90 @@
       color: var(--text);
       outline:none;
     }
-    button{
+    .sendBtn{
       padding: 12px 14px;
       border-radius: 12px;
       border:1px solid rgba(0,229,255,0.35);
       background: rgba(0,229,255,0.10);
       color: var(--text);
       cursor:pointer;
-      font-weight: 700;
+      font-weight: 800;
     }
-    button:disabled{ opacity:.6; cursor:not-allowed; }
+    .sendBtn:disabled{ opacity:.6; cursor:not-allowed; }
 
-    .footerHint{
+    .status{
+      padding: 0 12px 12px;
       font-size: 12px;
-      color: var(--muted);
-      margin-top: 10px;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
+      color: rgba(232,238,252,.70);
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="card">
-
-      <!-- HLAVIČKA CHATTU (produktový look) -->
-      <div class="chatHeader" role="banner">
-        <div class="chLeft">
-          <div class="logoBox" aria-hidden="true">🤖</div>
-          <div class="chTitleWrap">
-            <div class="chTitle" id="headerTitle">Ukázka DEMO pro obec</div>
-            <div class="chSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny, odpady, poplatky…</div>
-          </div>
-        </div>
-        <div class="chRight">
-          <div class="badge">DEMO</div>
-          <button class="btnGhost" id="resetTop" type="button">Reset</button>
-        </div>
+  <div class="hero">
+    <div class="heroCard">
+      <div class="heroH1">AI asistent obce – DEMO</div>
+      <div class="heroP">
+        Ukázka chatu pro občany (kontakty, úřední hodiny, odpady, poplatky…). Otevřete chat boční lištou vpravo.
       </div>
-
-      <!-- rychlé dotazy -->
-      <div class="pillbar">
-        <span class="pill" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
-        <span class="pill" data-q="Jaký je kontakt na městský/obecní úřad?">Kontakt</span>
-        <span class="pill" data-q="Kde je bioodpad a kdy je otevřeno?">Bioodpad</span>
-        <span class="pill" data-q="Jak se platí poplatek za odpad?">Poplatek za odpad</span>
-        <span class="pill" data-q="Kde na webu najdu úřední desku?">Úřední deska</span>
+      <div class="heroHint">
+        Tip: pošlete odkaz ve tvaru <code>/hradec-kralove/</code>, <code>/zeleznice/</code> apod.
       </div>
-
-      <div id="chat" class="chat" aria-live="polite"></div>
-
-      <div class="row">
-        <input id="inp" type="text" placeholder="Napište dotaz…" autocomplete="off" />
-        <button id="send" type="button">Odeslat</button>
-      </div>
-
-      <div class="footerHint">
-        <div id="status"></div>
-        <div style="opacity:.65;">Ukázka slouží pro představu fungování AI asistenta na webu obce.</div>
-      </div>
-
     </div>
   </div>
 
+  <!-- Side tab launcher -->
+  <div id="sideTab" class="sideTab blink" role="button" aria-label="Otevřít chat">
+    <div class="tabIcon">🤖</div>
+    <div class="tabText">
+      <strong>Otevřít chat</strong>
+      <span id="tabSub">DEMO pro obec</span>
+    </div>
+  </div>
+
+  <!-- Backdrop + Drawer -->
+  <div id="backdrop" class="drawerBackdrop"></div>
+
+  <aside id="drawer" class="drawer" aria-label="Chat">
+    <div class="drawerHeader">
+      <div class="hdrLeft">
+        <div class="hdrIcon" aria-hidden="true">🤖</div>
+        <div class="hdrText">
+          <div class="hdrTitle" id="headerTitle">Ukázka DEMO pro obec</div>
+          <div class="hdrSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny, odpady…</div>
+        </div>
+      </div>
+      <div class="hdrRight">
+        <div class="badge">DEMO</div>
+        <button class="btnGhost" id="resetTop" type="button">Reset</button>
+        <button class="btnGhost" id="closeBtn" type="button">✕</button>
+      </div>
+    </div>
+
+    <div class="pillbar">
+      <span class="pill" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
+      <span class="pill" data-q="Jaký je kontakt na městský/obecní úřad?">Kontakt</span>
+      <span class="pill" data-q="Kde je bioodpad a kdy je otevřeno?">Bioodpad</span>
+      <span class="pill" data-q="Jak se platí poplatek za odpad?">Poplatek za odpad</span>
+      <span class="pill" data-q="Kde na webu najdu úřední desku?">Úřední deska</span>
+    </div>
+
+    <div id="chat" class="chat" aria-live="polite"></div>
+
+    <div class="inputRow">
+      <input id="inp" type="text" placeholder="Napište dotaz…" autocomplete="off" />
+      <button class="sendBtn" id="send" type="button">Odeslat</button>
+    </div>
+
+    <div class="status" id="status"></div>
+  </aside>
+
   <script>
+    const drawer = document.getElementById('drawer');
+    const backdrop = document.getElementById('backdrop');
+    const sideTab = document.getElementById('sideTab');
+    const closeBtn = document.getElementById('closeBtn');
+
     const chat = document.getElementById('chat');
     const inp = document.getElementById('inp');
     const sendBtn = document.getElementById('send');
@@ -258,26 +391,19 @@
 
     const headerTitle = document.getElementById('headerTitle');
     const headerSub = document.getElementById('headerSub');
-
+    const tabSub = document.getElementById('tabSub');
     const resetTop = document.getElementById('resetTop');
 
-    // ===== Helpers =====
     function getParam(name) {
       const u = new URL(window.location.href);
       return u.searchParams.get(name);
     }
-
     function normalizeSlug(value) {
       if (!value) return "";
       return value.toLowerCase().trim()
         .replace(/\s+/g, "-")
         .replace(/[^a-z0-9\-]/g, "");
     }
-
-    // slug z URL:
-    // /radim/ -> radim
-    // /demo/radim/ -> radim
-    // fallback ?obec=radim
     function inferSlugFromUrl() {
       const parts = location.pathname.split('/').filter(Boolean).map(x => x.toLowerCase());
       if (parts.length) {
@@ -287,7 +413,21 @@
       return normalizeSlug(getParam("obec") || "radim") || "radim";
     }
 
-    // linkify URL v textu
+    // ===== Skin background =====
+    let slug = inferSlugFromUrl();
+
+    (function applySkinBackground(){
+      const url = `/skins/${slug}.jpg`;
+
+      document.body.style.backgroundImage =
+        `linear-gradient(180deg, rgba(0,0,0,.26), rgba(0,0,0,.64)), url("${url}")`;
+      document.body.style.backgroundSize = "cover";
+      document.body.style.backgroundPosition = "center";
+      document.body.style.backgroundAttachment = "fixed";
+      document.body.style.backgroundRepeat = "no-repeat";
+    })();
+
+    // linkify URL
     function linkify(text) {
       const urlRegex = /(https?:\/\/[^\s)]+)\b/g;
       return String(text).replace(urlRegex, (url) => {
@@ -295,8 +435,6 @@
         return `<a href="${safe}" target="_blank" rel="noopener noreferrer">${url}</a>`;
       });
     }
-
-    // pojistka na bordel v odpovědi (hlavní má být backend)
     function sanitizeAnswerFront(text){
       if (!text) return text;
       return String(text)
@@ -318,7 +456,6 @@
       chat.scrollTop = chat.scrollHeight;
     }
 
-    // ---- Registry loading (bereš z public/registry/... pokud to tak deployuješ)
     async function loadRegistry() {
       try {
         const res = await fetch('/registry/municipalities.json', { cache: 'no-store' });
@@ -328,7 +465,6 @@
         return null;
       }
     }
-
     function pickMunicipality(reg, slug) {
       if (!reg) return null;
       if (Array.isArray(reg)) {
@@ -341,25 +477,43 @@
       return null;
     }
 
-    // ---- State
-    let slug = inferSlugFromUrl();
-    const THREAD_KEY = () => `municipality_thread_id_v2_${slug}`;
+    // thread per slug
+    const THREAD_KEY = () => `municipality_thread_id_v3_${slug}`;
     let threadId = localStorage.getItem(THREAD_KEY()) || null;
+
+    // ===== Drawer open/close =====
+    function openDrawer(){
+      drawer.classList.add('open');
+      backdrop.classList.add('open');
+      sideTab.classList.remove('blink'); // přestane blikat po prvním otevření
+      setTimeout(() => inp.focus(), 50);
+    }
+    function closeDrawer(){
+      drawer.classList.remove('open');
+      backdrop.classList.remove('open');
+    }
+
+    sideTab.addEventListener('click', openDrawer);
+    closeBtn.addEventListener('click', closeDrawer);
+    backdrop.addEventListener('click', closeDrawer);
+
+    // ESC closes
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDrawer();
+    });
 
     async function initMunicipality() {
       statusEl.textContent = "";
 
       const reg = await loadRegistry();
       const m = pickMunicipality(reg, slug);
-
       const displayName = m?.name || slug;
 
       headerTitle.textContent = `Ukázka DEMO pro obec: ${displayName}`;
       headerSub.textContent = "Zeptejte se na kontakty, úřední hodiny, odpady, poplatky…";
+      tabSub.textContent = displayName;
 
-      // uvítání
       add('ai', `Dobrý den 👋 Jsem ukázkový AI asistent pro obec ${displayName}. Jak vám mohu pomoci?`);
-      inp.focus();
     }
 
     async function ask(q) {
@@ -371,7 +525,6 @@
       sendBtn.disabled = true;
       statusEl.textContent = 'Generuje se odpověď…';
 
-      // loading bubble
       add('ai', 'Generuje se odpověď…');
       const loadingEl = chat.lastElementChild;
 
@@ -387,8 +540,6 @@
         });
 
         const data = await res.json().catch(() => ({}));
-
-        // remove loading
         if (loadingEl) loadingEl.remove();
 
         if (!res.ok || !data.ok) {
@@ -397,12 +548,10 @@
         } else {
           const answer = sanitizeAnswerFront(data.answer || '');
           add('ai', answer || 'Omlouvám se, nepodařilo se mi najít odpověď.');
-
           if (data.thread_id) {
             threadId = data.thread_id;
             localStorage.setItem(THREAD_KEY(), threadId);
           }
-
           statusEl.textContent = '';
         }
       } catch (e) {
@@ -415,7 +564,6 @@
       }
     }
 
-    // Events
     sendBtn.addEventListener('click', () => ask());
     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') ask(); });
 
@@ -430,7 +578,6 @@
       add('ai', `Resetováno. Zeptejte se znovu (obec: ${slug}).`);
       inp.focus();
     }
-
     resetTop.addEventListener('click', resetConversation);
 
     // Init
