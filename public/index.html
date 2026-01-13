@@ -2,433 +2,298 @@
 <html lang="cs">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <!-- iOS FIX: maximum-scale=1 + user-scalable=no + viewport-fit=cover -->
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
   <title>AI asistent obce – DEMO</title>
 
   <style>
     :root{
-      --accent:#1f6fff;
-      --accent2:#0ea5ff;
-
-      --text:#eaf0ff;
-      --muted:rgba(234,240,255,.75);
-
-      --glass: rgba(20,30,50,.36);
-      --glass2: rgba(20,30,50,.26);
-
-      --stroke: rgba(255,255,255,.18);
-      --stroke2: rgba(255,255,255,.10);
-
-      --shadow: 0 18px 55px rgba(0,0,0,.45);
-      --shadow2: 0 10px 24px rgba(0,0,0,.30);
-
-      --r: 18px;
-      --r2: 14px;
+      --bg:#0b1220;
+      --text:#e8eefc;
+      --muted:rgba(232,238,252,.72);
+      --border:rgba(255,255,255,.10);
+      --accent:#00E5FF;
+      --shadow: 0 20px 55px rgba(0,0,0,.55);
     }
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    html, body { height: 100%; }
     body{
-      margin:0;
       font-family: system-ui, -apple-system, Arial, sans-serif;
-      background: #0b1220;
-      color: var(--text);
-      overflow-x:hidden;
-    }
-
-    /* Pozadí stránky (pro DEMO page) – můžeš nechat nebo zjednodušit */
-    body.demo-bg{
+      margin:0;
+      color:var(--text);
       background:
-        radial-gradient(900px 520px at 70% 0%, rgba(31,111,255,.18), transparent 55%),
-        radial-gradient(700px 420px at 20% 100%, rgba(14,165,255,.14), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0)),
-        #0b1220;
-      min-height:100%;
+        radial-gradient(1200px 600px at 30% 0%, rgba(0,229,255,.10), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)),
+        var(--bg);
+      -webkit-text-size-adjust: 100%;
     }
 
-    /* malé info na demo stránce (nepovinné) */
-    .demoTop{
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 18px 16px;
+    .wrap{ max-width: 980px; margin: 0 auto; padding: 24px; }
+    @media (max-width: 720px){
+      .wrap{ padding: 14px; }
     }
-    .demoCard{
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 16px;
-      padding: 14px 14px;
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    /* ======= CHAT HEADER ======= */
+    .chatHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding: 10px 12px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background: rgba(0,0,0,.16);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 14px 36px rgba(0,0,0,.26);
-    }
-    .demoTitle{ margin:0 0 6px; font-size: 15px; font-weight: 900; }
-    .demoSub{ margin:0; font-size: 13px; opacity:.85; line-height:1.45; }
-    .demoHint{ margin-top: 8px; font-size: 12px; opacity:.75; }
-
-    /* ===== Launcher bubble (jako Jičín “Máte dotaz?”) ===== */
-    .launcher{
-      position: fixed;
-      right: 16px;
-      bottom: calc(16px + env(safe-area-inset-bottom));
-      z-index: 9999;
-
-      display:flex;
-      align-items:center;
-      gap:10px;
-
-      padding: 10px 12px;
-      border-radius: 999px;
-      cursor:pointer;
-      user-select:none;
-
-      background: rgba(255,255,255,.92);
-      color: #0b1220;
-      border: 1px solid rgba(20,30,45,.10);
-      box-shadow: var(--shadow2);
-      transition: transform .12s ease, box-shadow .12s ease;
-    }
-    .launcher:hover{
-      transform: translateY(-1px);
-      box-shadow: 0 14px 30px rgba(0,0,0,.22);
-    }
-    .launcherDot{
-      width: 12px;
-      height: 12px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.0)),
-                  linear-gradient(180deg, var(--accent2), var(--accent));
-      box-shadow: 0 0 0 6px rgba(31,111,255,.12);
-      animation: pulse 1.8s infinite;
-    }
-    @keyframes pulse{
-      0%{ box-shadow: 0 0 0 0 rgba(31,111,255,.20); }
-      70%{ box-shadow: 0 0 0 10px rgba(31,111,255,.0); }
-      100%{ box-shadow: 0 0 0 0 rgba(31,111,255,.0); }
-    }
-    .launcherText{
-      display:flex;
-      flex-direction:column;
-      line-height:1.05;
-    }
-    .launcherText b{ font-size: 13px; }
-    .launcherText span{ font-size: 12px; opacity:.75; }
-
-    /* ===== Overlay + panel ===== */
-    .overlay{
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.25);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .18s ease;
-      z-index: 9998;
-    }
-    .overlay.open{
-      opacity: 1;
-      pointer-events: auto;
+      margin-bottom: 12px;
     }
 
-    .panel{
-      position: fixed;
-      right: 16px;
-      bottom: calc(72px + env(safe-area-inset-bottom));
-      width: 380px;
-      height: 520px;
-      z-index: 9999;
-
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-
-      background: var(--glass);
-      border: 1px solid var(--stroke);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-
-      overflow: hidden;
-
-      transform: translateY(12px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .18s ease, transform .18s ease;
-    }
-    .panel.open{
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
-    /* ===== Header (glass) ===== */
-    .header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-
-      padding: 12px 12px;
-      background: rgba(255,255,255,.07);
-      border-bottom: 1px solid rgba(255,255,255,.10);
-    }
-    .hLeft{
+    .chLeft{
       display:flex;
       align-items:center;
       gap:10px;
       min-width:0;
     }
-    .hMark{
-      width: 34px;
-      height: 34px;
+
+    .logoBox{
+      width: 36px;
+      height: 36px;
       border-radius: 12px;
-      background: linear-gradient(180deg, rgba(14,165,255,.30), rgba(31,111,255,.12));
-      border: 1px solid rgba(255,255,255,.14);
       display:flex;
       align-items:center;
       justify-content:center;
-      font-weight: 900;
-      color: var(--text);
-      flex: 0 0 auto;
+      background: rgba(0,229,255,.10);
+      border:1px solid rgba(0,229,255,.18);
+      font-size: 18px;
+      flex:0 0 auto;
     }
-    .hTitleWrap{ min-width:0; }
-    .hTitle{
-      font-weight: 900;
+
+    .chTitleWrap{ min-width:0; }
+    .chTitle{
+      font-weight: 800;
       font-size: 13px;
+      letter-spacing: .2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 240px;
+      max-width: 560px;
     }
-    .hSub{
+    .chSub{
       font-size: 12px;
       color: var(--muted);
+      margin-top: 2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 240px;
-      margin-top: 1px;
+      max-width: 560px;
     }
-    .hRight{ display:flex; gap:8px; align-items:center; }
+
+    .chRight{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex:0 0 auto;
+    }
+
     .badge{
       font-size: 11px;
       padding: 5px 9px;
       border-radius:999px;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.07);
-    }
-    .iconBtn{
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
       border:1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.06);
       color: var(--text);
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
     }
-    .iconBtn:hover{ background: rgba(255,255,255,.09); }
 
-    /* ===== Pills (lehké, jako “chips”) ===== */
-    .pills{
-      display:flex;
-      flex-wrap: wrap;
-      gap:8px;
-      padding: 10px 12px 8px;
-      background: rgba(255,255,255,.03);
-    }
-    .pill{
+    .btnGhost{
       font-size: 12px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
+      padding: 8px 10px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
       cursor:pointer;
       user-select:none;
     }
-    .pill:hover{ background: rgba(255,255,255,.09); }
+    .btnGhost:hover{ background: rgba(255,255,255,.07); }
 
-    /* ===== Chat area = TRANSPARENT (bez rámečku) ===== */
+    /* ======= Pills ======= */
+    .pillbar{ display:flex; gap:10px; flex-wrap:wrap; margin: 8px 0 10px; }
+    .pill{
+      padding: 7px 10px;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:999px;
+      background: rgba(255,255,255,0.04);
+      cursor:pointer;
+      user-select:none;
+      font-size: 12px;
+    }
+    .pill:hover{ background: rgba(255,255,255,0.07); }
+
+    /* ======= Chat: TRANSPARENT (bez rámečku) ======= */
     .chat{
-      height: calc(100% - 60px - 54px - 64px);
-      padding: 10px 10px;
+      height: 58vh;
       overflow:auto;
-      background: transparent; /* klíč! */
+      padding: 8px 2px;
+      background: transparent;     /* <- průhledný */
+      border: 0;                  /* <- bez rámečku */
+      border-radius: 0;
     }
 
-    /* ===== Only messages have frames ===== */
-    .msg{ display:flex; margin: 8px 0; }
+    .msg{ margin: 10px 0; display:flex; }
     .msg.user{ justify-content:flex-end; }
 
     .bubble{
       max-width: 86%;
       padding: 10px 12px;
       border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.06);
       line-height: 1.35;
-      font-size: 13px;
-      word-break: break-word;
       white-space: pre-wrap;
-      box-shadow: 0 10px 24px rgba(0,0,0,.16);
+      word-break: break-word;
+      font-size: 14px;
+      border:1px solid rgba(255,255,255,.12); /* rámeček jen na zprávách */
+      background: rgba(0,0,0,.18);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
+
+    .user .bubble{
+      border-color: rgba(0,229,255,0.20);
+      background: rgba(0,229,255,.10);
+    }
+
     .ai .bubble{
       border-color: rgba(255,255,255,.14);
-      background: rgba(255,255,255,.07);
-    }
-    .user .bubble{
-      border-color: rgba(31,111,255,.28);
-      background: linear-gradient(180deg, rgba(31,111,255,.18), rgba(31,111,255,.10));
+      background: rgba(0,0,0,.18);
     }
 
-    .bubble a{ color: #bfe7ff; text-decoration:none; }
-    .bubble a:hover{ text-decoration:underline; }
+    .bubble a{ color: var(--accent); text-decoration: none; }
+    .bubble a:hover{ text-decoration: underline; }
 
-    /* ===== Bottom input (glass) ===== */
-    .composer{
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-
-      padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
-      background: rgba(255,255,255,.06);
-      border-top: 1px solid rgba(255,255,255,.10);
-    }
+    /* ======= Input ======= */
     .row{
       display:flex;
       gap:10px;
-      align-items:center;
+      margin-top: 12px;
+      padding-bottom: env(safe-area-inset-bottom);
     }
-    .input{
+
+    input{
       flex:1;
-      padding: 12px 12px;
+      padding: 12px 14px;
       border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(10,16,34,.50);
+      border:1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,.20);
       color: var(--text);
       outline:none;
+
+      /* iOS FIX: musí být min. 16px, jinak Safari zoomuje */
+      font-size: 16px;
+      line-height: 1.2;
+
+      -webkit-appearance: none;
+      appearance: none;
     }
-    .send{
-      width: 46px;
-      height: 46px;
+
+    button{
+      padding: 12px 14px;
       border-radius: 14px;
-      border: 1px solid rgba(31,111,255,.35);
-      background: linear-gradient(180deg, rgba(31,111,255,.22), rgba(31,111,255,.12));
+      border:1px solid rgba(0,229,255,0.35);
+      background: rgba(0,229,255,0.12);
       color: var(--text);
       cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight: 900;
+      font-weight: 800;
+      min-width: 56px;
     }
-    .send:disabled{ opacity:.55; cursor:not-allowed; }
+    button:disabled{ opacity:.6; cursor:not-allowed; }
 
-    .status{
-      margin-top: 8px;
+    .footerHint{
       font-size: 12px;
       color: var(--muted);
-      min-height: 16px;
+      margin-top: 10px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
     }
 
-    /* ===== Mobile: fullscreen panel ===== */
-    @media (max-width: 520px){
-      .panel{
-        right: 0;
-        left: 0;
-        bottom: 0;
-        width: auto;
-        height: 100dvh;
-        border-radius: 0;
-        border-left: 0;
-        border-right: 0;
-      }
-      .launcher{ right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); }
-      .hTitle{ max-width: 64vw; }
-      .hSub{ max-width: 64vw; }
-      .chat{
-        height: calc(100% - 60px - 54px - 78px);
-        padding-bottom: 10px;
-      }
+    /* Na mobilu ať je chat víc “widget feel” */
+    @media (max-width: 720px){
+      .card{ padding: 14px; border-radius: 16px; }
+      .chat{ height: 60vh; }
+      .bubble{ max-width: 92%; }
+      .chTitle{ max-width: 220px; }
+      .chSub{ max-width: 220px; }
     }
   </style>
 </head>
 
-<body class="demo-bg">
-  <div class="demoTop">
-    <div class="demoCard">
-      <p class="demoTitle">AI asistent obce – DEMO</p>
-      <p class="demoSub">
-        Ukázka chatu pro občany (kontakty, úřední hodiny, odpady, poplatky…). Otevřete chat vpravo dole.
-      </p>
-      <div class="demoHint">Tip: pošlete odkaz ve tvaru <code>/hradec-kralove/</code> nebo <code>?obec=hradec-kralove</code></div>
-    </div>
-  </div>
+<body>
+  <div class="wrap">
+    <div class="card">
 
-  <!-- Launcher -->
-  <div class="launcher" id="launcher" role="button" aria-label="Otevřít chat">
-    <div class="launcherDot" aria-hidden="true"></div>
-    <div class="launcherText">
-      <b>Máte dotaz?</b>
-      <span>Poradíme…</span>
-    </div>
-  </div>
-
-  <!-- Overlay -->
-  <div class="overlay" id="overlay"></div>
-
-  <!-- Panel -->
-  <aside class="panel" id="panel" aria-live="polite">
-    <div class="header">
-      <div class="hLeft">
-        <!-- zatím placeholder, logo neřešíme -->
-        <div class="hMark">AI</div>
-
-        <div class="hTitleWrap">
-          <div class="hTitle" id="headerTitle">Ukázka pro obec</div>
-          <div class="hSub" id="headerSub">Zeptejte se na úřední hodiny, kontakty…</div>
+      <div class="chatHeader" role="banner">
+        <div class="chLeft">
+          <div class="logoBox" aria-hidden="true">AI</div>
+          <div class="chTitleWrap">
+            <div class="chTitle" id="headerTitle">Ukázka DEMO pro obec</div>
+            <div class="chSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny, odpady, poplatky…</div>
+          </div>
+        </div>
+        <div class="chRight">
+          <div class="badge">DEMO</div>
+          <button class="btnGhost" id="resetTop" type="button">Reset</button>
         </div>
       </div>
-      <div class="hRight">
-        <div class="badge">DEMO</div>
-        <button class="iconBtn" id="resetBtn" type="button" title="Reset">↻</button>
-        <button class="iconBtn" id="closeBtn" type="button" title="Zavřít">✕</button>
+
+      <div class="pillbar">
+        <span class="pill" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
+        <span class="pill" data-q="Jaký je kontakt na městský/obecní úřad?">Kontakt</span>
+        <span class="pill" data-q="Kde je bioodpad a kdy je otevřeno?">Bioodpad</span>
+        <span class="pill" data-q="Jak se platí poplatek za odpad?">Poplatek za odpad</span>
+        <span class="pill" data-q="Kde na webu najdu úřední desku?">Úřední deska</span>
       </div>
-    </div>
 
-    <div class="pills">
-      <span class="pill" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
-      <span class="pill" data-q="Jaký je kontakt na městský/obecní úřad?">Kontakt</span>
-      <span class="pill" data-q="Kde je bioodpad a kdy je otevřeno?">Bioodpad</span>
-      <span class="pill" data-q="Jak se platí poplatek za odpad?">Poplatek</span>
-      <span class="pill" data-q="Kde na webu najdu úřední desku?">Úřední deska</span>
-    </div>
+      <div id="chat" class="chat" aria-live="polite"></div>
 
-    <div id="chat" class="chat"></div>
-
-    <div class="composer">
       <div class="row">
-        <input id="inp" class="input" type="text" placeholder="Napište dotaz…" autocomplete="off" />
-        <button id="send" class="send" type="button" aria-label="Odeslat">➤</button>
+        <input
+          id="inp"
+          type="text"
+          placeholder="Napište dotaz…"
+          autocomplete="off"
+          autocapitalize="sentences"
+          spellcheck="false"
+          enterkeyhint="send"
+        />
+        <button id="send" type="button">➤</button>
       </div>
-      <div class="status" id="status"></div>
+
+      <div class="footerHint">
+        <div id="status"></div>
+        <div style="opacity:.65;">Ukázka slouží pro představu fungování AI asistenta na webu obce.</div>
+      </div>
+
     </div>
-  </aside>
+  </div>
 
   <script>
-    const launcher = document.getElementById('launcher');
-    const overlay  = document.getElementById('overlay');
-    const panel    = document.getElementById('panel');
-    const closeBtn = document.getElementById('closeBtn');
-    const resetBtn = document.getElementById('resetBtn');
-
-    const chat     = document.getElementById('chat');
-    const inp      = document.getElementById('inp');
-    const sendBtn  = document.getElementById('send');
+    const chat = document.getElementById('chat');
+    const inp = document.getElementById('inp');
+    const sendBtn = document.getElementById('send');
     const statusEl = document.getElementById('status');
 
     const headerTitle = document.getElementById('headerTitle');
-    const headerSub   = document.getElementById('headerSub');
+    const headerSub = document.getElementById('headerSub');
+    const resetTop = document.getElementById('resetTop');
 
-    // ===== Helpers =====
     function getParam(name) {
       const u = new URL(window.location.href);
       return u.searchParams.get(name);
@@ -491,58 +356,31 @@
 
     function pickMunicipality(reg, slug) {
       if (!reg) return null;
-      if (Array.isArray(reg)) {
-        return reg.find(m => m && (m.slug === slug || m.id === slug)) || null;
-      }
-      if (Array.isArray(reg.municipalities)) {
-        return reg.municipalities.find(m => m && (m.slug === slug || m.id === slug)) || null;
-      }
+      if (Array.isArray(reg)) return reg.find(m => m && (m.slug === slug || m.id === slug)) || null;
+      if (Array.isArray(reg.municipalities)) return reg.municipalities.find(m => m && (m.slug === slug || m.id === slug)) || null;
       if (reg[slug]) return { slug, ...reg[slug] };
       return null;
     }
 
-    // ===== Open/close =====
-    function openChat(){
-      panel.classList.add('open');
-      overlay.classList.add('open');
-      setTimeout(() => inp.focus(), 80);
-    }
-    function closeChat(){
-      panel.classList.remove('open');
-      overlay.classList.remove('open');
-    }
-
-    launcher.addEventListener('click', openChat);
-    overlay.addEventListener('click', closeChat);
-    closeBtn.addEventListener('click', closeChat);
-
-    // ===== State =====
     let slug = inferSlugFromUrl();
-    const THREAD_KEY = () => `municipality_thread_id_glass_${slug}`;
+    const THREAD_KEY = () => `municipality_thread_id_v3_${slug}`;
     let threadId = localStorage.getItem(THREAD_KEY()) || null;
 
-    async function initMunicipality(){
+    async function initMunicipality() {
+      statusEl.textContent = "";
+
       const reg = await loadRegistry();
       const m = pickMunicipality(reg, slug);
       const displayName = m?.name || slug;
 
-      headerTitle.textContent = `Ukázka pro obec: ${displayName}`;
-      headerSub.textContent = `Zeptejte se na kontakty, úřední hodiny, odpady, poplatky…`;
+      headerTitle.textContent = `Ukázka DEMO pro obec: ${displayName}`;
+      headerSub.textContent = "Zeptejte se na kontakty, úřední hodiny, odpady, poplatky…";
 
       add('ai', `Dobrý den 👋 Jsem ukázkový AI asistent pro obec ${displayName}. Jak vám mohu pomoci?`);
-    }
-
-    function resetConversation(){
-      localStorage.removeItem(THREAD_KEY());
-      threadId = null;
-      chat.innerHTML = '';
-      add('ai', `Resetováno. Zeptejte se znovu (obec: ${slug}).`);
-      statusEl.textContent = '';
       inp.focus();
     }
-    resetBtn.addEventListener('click', resetConversation);
 
-    async function ask(q){
+    async function ask(q) {
       const msg = (q ?? inp.value).trim();
       if (!msg) return;
 
@@ -551,44 +389,36 @@
       sendBtn.disabled = true;
       statusEl.textContent = 'Generuje se odpověď…';
 
-      // loading bubble
       add('ai', 'Generuje se odpověď…');
       const loadingEl = chat.lastElementChild;
 
-      try{
+      try {
         const res = await fetch('/.netlify/functions/search', {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify({
-            message: msg,
-            thread_id: threadId,
-            obec: slug
-          })
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg, thread_id: threadId, obec: slug })
         });
 
         const data = await res.json().catch(() => ({}));
-
         if (loadingEl) loadingEl.remove();
 
-        if (!res.ok || !data.ok){
+        if (!res.ok || !data.ok) {
           add('ai', 'Omlouvám se, teď se mi nepodařilo odpovědět. Zkuste to prosím znovu.');
-          statusEl.textContent = '';
         } else {
           const answer = sanitizeAnswerFront(data.answer || '');
           add('ai', answer || 'Omlouvám se, nepodařilo se mi najít odpověď.');
 
-          if (data.thread_id){
+          if (data.thread_id) {
             threadId = data.thread_id;
             localStorage.setItem(THREAD_KEY(), threadId);
           }
-          statusEl.textContent = '';
         }
-      } catch(e){
+      } catch (e) {
         if (loadingEl) loadingEl.remove();
         add('ai', 'Omlouvám se, došlo k chybě připojení. Zkuste to prosím znovu.');
-        statusEl.textContent = '';
       } finally {
         sendBtn.disabled = false;
+        statusEl.textContent = '';
         inp.focus();
       }
     }
@@ -600,7 +430,15 @@
       el.addEventListener('click', () => ask(el.getAttribute('data-q')));
     });
 
-    // Init (panel je default zavřený)
+    function resetConversation() {
+      localStorage.removeItem(THREAD_KEY());
+      threadId = null;
+      chat.innerHTML = '';
+      add('ai', `Resetováno. Zeptejte se znovu (obec: ${slug}).`);
+      inp.focus();
+    }
+    resetTop.addEventListener('click', resetConversation);
+
     initMunicipality();
   </script>
 </body>
