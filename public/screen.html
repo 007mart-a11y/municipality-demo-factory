@@ -60,23 +60,50 @@
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    const obec = (params.get("obec") || "radim").toLowerCase();
 
-    const FALLBACK = "/skins/radim/bg.jpg";
-    const bgUrl = `/skins/${obec}/bg.jpg`;
+    function normalizeSlug(v) {
+      return String(v || "")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9\-]/g, "")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+    }
 
-    // zkusí načíst obrázek obce, když selže → radim
+    const requested = normalizeSlug(params.get("obec")) || "radim";
+    const FALLBACK_SLUG = "radim";
+
+    const FALLBACK_BG = `/skins/${FALLBACK_SLUG}/bg.jpg`;
+    const bgUrl = `/skins/${requested}/bg.jpg`;
+
+    const chatEl = document.getElementById("chat");
+
+    function setBg(url) {
+      document.body.style.backgroundImage = `url("${url}")`;
+    }
+
+    function setChat(slug) {
+      chatEl.src = `/?obec=${encodeURIComponent(slug)}`;
+    }
+
+    // default: zkusíme chtěnou obec
+    setChat(requested);
+
+    // cache-bust, ať se vždy natáhne aktuální soubor
+    const bust = `?v=${Date.now()}`;
+
     const img = new Image();
     img.onload = () => {
-      document.body.style.backgroundImage = `url(${bgUrl})`;
+      setBg(bgUrl + bust);
     };
     img.onerror = () => {
-      document.body.style.backgroundImage = `url(${FALLBACK})`;
+      // když bg pro obec neexistuje -> přepneme i chat na fallback,
+      // aby se "neexistující obec" dál netvářila jako ok
+      setBg(FALLBACK_BG + bust);
+      setChat(FALLBACK_SLUG);
     };
-    img.src = bgUrl;
-
-    // iframe s chatem (HLAVNÍ APP)
-    document.getElementById("chat").src = `/?obec=${obec}`;
+    img.src = bgUrl + bust;
   </script>
 
 </body>
