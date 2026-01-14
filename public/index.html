@@ -28,34 +28,34 @@
       overflow-x: hidden;
     }
 
-    /* ===== Page background (homepage screenshot) ===== */
+    /* ===== Page background (image + subtle overlays) ===== */
     .bg{
       position: fixed;
       inset: 0;
-      background:
-        radial-gradient(1200px 700px at 25% 0%, rgba(0,229,255,.14), transparent 60%),
-        radial-gradient(900px 600px at 80% 15%, rgba(255,255,255,.06), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)),
-        #0b1220;
       z-index: 0;
-    }
-    .bg::after{
-      content:"";
-      position:absolute; inset:0;
-      background: linear-gradient(90deg, rgba(11,18,32,.85), rgba(11,18,32,.45));
-      pointer-events:none;
+      background: #0b1220;
     }
     .bgImg{
       position:absolute; inset:0;
       background-size: cover;
       background-position: center;
+      background-repeat:no-repeat;
       filter: saturate(1.02) contrast(1.02);
       opacity: .92;
       transform: scale(1.02);
     }
+    /* jemný gradient overlay (ne tak agresivní jako dřív) */
+    .bgOverlay{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(1200px 700px at 25% 0%, rgba(0,229,255,.14), transparent 60%),
+        radial-gradient(900px 600px at 80% 15%, rgba(255,255,255,.06), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55));
+      pointer-events:none;
+    }
     .bgVignette{
       position:absolute; inset:0;
-      background: radial-gradient(1200px 900px at 30% 20%, transparent 40%, rgba(0,0,0,.55) 100%);
+      background: radial-gradient(1200px 900px at 30% 20%, transparent 45%, rgba(0,0,0,.60) 100%);
       pointer-events:none;
     }
 
@@ -87,13 +87,8 @@
       flex: 0 0 auto;
       font-weight: 900;
     }
-    .hint .t{
-      min-width:0;
-    }
-    .hint .t .h{
-      font-weight: 800;
-      letter-spacing: .2px;
-    }
+    .hint .t{ min-width:0; }
+    .hint .t .h{ font-weight: 800; letter-spacing: .2px; }
     .hint .t .s{
       margin-top: 4px;
       color: var(--muted);
@@ -148,16 +143,13 @@
     .tab .mini .a{ font-weight: 800; font-size: 12px; }
     .tab .mini .b{ font-size: 11px; color: var(--muted); white-space: nowrap; overflow:hidden; text-overflow: ellipsis; }
 
-    /* blink */
-    .tab.blink{
-      animation: pulse 1.8s infinite ease-in-out;
-    }
+    .tab.blink{ animation: pulse 1.8s infinite ease-in-out; }
     @keyframes pulse{
       0%,100%{ box-shadow: 0 18px 50px rgba(0,0,0,.48); }
       50%{ box-shadow: 0 18px 50px rgba(0,229,255,.22); }
     }
 
-    /* ===== Chat Panel (Intercom-like) ===== */
+    /* ===== Chat Panel ===== */
     .panel{
       position: fixed;
       right: 14px;
@@ -187,12 +179,7 @@
       justify-content:space-between;
       gap:10px;
     }
-    .phLeft{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width:0;
-    }
+    .phLeft{ display:flex; align-items:center; gap:10px; min-width:0; }
     .badgeIcon{
       width: 34px; height: 34px;
       border-radius: 12px;
@@ -240,7 +227,7 @@
     }
     .iconBtn:hover{ background: rgba(255,255,255,.07); }
 
-    /* ===== Pills inside panel ===== */
+    /* ===== Quick pills ===== */
     .pillbar{
       padding: 10px 12px 2px;
       display:flex;
@@ -263,7 +250,7 @@
       flex: 1 1 auto;
       padding: 12px 12px 8px;
       overflow:auto;
-      background: transparent;     /* <- důležité */
+      background: transparent;
     }
 
     .msg{ display:flex; margin: 10px 0; }
@@ -291,11 +278,7 @@
     .bubble a:hover{ text-decoration:underline; }
 
     /* typing dots */
-    .typing{
-      display:inline-flex;
-      gap:6px;
-      align-items:center;
-    }
+    .typing{ display:inline-flex; gap:6px; align-items:center; }
     .typing span{
       width: 7px; height: 7px;
       border-radius: 999px;
@@ -355,7 +338,7 @@
       background: rgba(0,0,0,.18);
       color: var(--text);
       outline:none;
-      font-size: 16px; /* <- fix iOS zoom */
+      font-size: 16px; /* iOS zoom fix */
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
     }
     .send{
@@ -375,6 +358,7 @@
       padding: 0 12px 10px;
       font-size: 11px;
       color: rgba(232,238,252,.58);
+      min-height: 14px;
     }
 
     /* ===== Mobile ===== */
@@ -400,6 +384,7 @@
 <body>
   <div class="bg" aria-hidden="true">
     <div class="bgImg" id="bgImg"></div>
+    <div class="bgOverlay"></div>
     <div class="bgVignette"></div>
   </div>
 
@@ -490,7 +475,7 @@
         .replace(/[^a-z0-9\-]/g, "");
     }
 
-    // IMPORTANT: vždy preferuj ?obec= (a ignoruj /skins/ v path)
+    // preferuj ?obec= (a ignoruj /skins/ v path)
     function inferSlug() {
       const q = normalizeSlug(getParam("obec"));
       if (q) return q;
@@ -515,7 +500,7 @@
       wrap.className = 'msg ' + (role === 'user' ? 'user' : 'ai');
 
       if (opts.type === "feedback") {
-        wrap.innerHTML = htmlOrText; // already sanitized by us
+        wrap.innerHTML = htmlOrText;
       } else {
         const b = document.createElement('div');
         b.className = 'bubble';
@@ -563,44 +548,61 @@
     function setAccent(color) {
       if (!color) return;
       document.documentElement.style.setProperty('--accent', color);
-      // jemný derivát
-      document.documentElement.style.setProperty('--accentSoft', 'rgba(0,229,255,.18)');
+    }
+
+    function tryLoadImage(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        // cache bust aby se po deploy chytil nový soubor
+        img.src = url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now();
+        img.onload = () => resolve(url);
+        img.onerror = () => resolve(null);
+      });
     }
 
     async function setBackgroundForSlug(slug) {
-      const candidates = [
-        `/skins/${slug}/bg.jpg`,
-        `/skins/${slug}.jpg`,
-        `/skins/${slug}/bg.png`,
-        `/skins/${slug}.png`,
-        `/skins/${slug}/bg.webp`,
-        `/skins/${slug}.webp`,
-      ];
+      // aliasy pro jistotu (kdyby někdo psal ?obec=hradec)
+      const aliases = [];
+      if (slug === "hradec") aliases.push("hradec-kralove");
+      if (slug === "hk") aliases.push("hradec-kralove");
+
+      const pool = [slug, ...aliases];
+
+      const candidates = [];
+      for (const s of pool) {
+        candidates.push(`/skins/${s}/bg.jpg`);
+        candidates.push(`/skins/${s}.jpg`);
+        candidates.push(`/skins/${s}/bg.png`);
+        candidates.push(`/skins/${s}.png`);
+        candidates.push(`/skins/${s}/bg.webp`);
+        candidates.push(`/skins/${s}.webp`);
+      }
+
+      statusEl.textContent = "Načítám pozadí…";
 
       for (const url of candidates) {
-        try {
-          const r = await fetch(url, { method: 'HEAD', cache: 'no-store' });
-          if (r.ok) {
-            bgImg.style.backgroundImage = `url('${url}')`;
-            return;
-          }
-        } catch {}
+        const okUrl = await tryLoadImage(url);
+        if (okUrl) {
+          bgImg.style.backgroundImage = `url('${okUrl}')`;
+          statusEl.textContent = "";
+          return;
+        }
       }
+
       // fallback gradient only
       bgImg.style.backgroundImage = '';
+      statusEl.textContent = "";
     }
 
     // ---- State
     let slug = inferSlug();
 
-    // thread_id ukládáme zvlášť pro každou obec
-    const THREAD_KEY = () => `municipality_thread_id_v3_${slug}`;
+    const THREAD_KEY = () => `municipality_thread_id_v4_${slug}`;
     let threadId = localStorage.getItem(THREAD_KEY()) || null;
 
     let regCache = null;
     let muni = null;
 
-    // feedback after 2 questions
     let userQCount = 0;
     let feedbackShown = false;
 
@@ -632,7 +634,6 @@
       feedbackShown = true;
 
       const phone = muni?.contact_phone || muni?.phone || muni?.tel || null;
-      const name = muni?.name || slug;
 
       const html = `
         <div class="feedback">
@@ -649,8 +650,6 @@
       wrap.querySelectorAll('button[data-fb]').forEach(btn => {
         btn.addEventListener('click', () => {
           const v = btn.getAttribute('data-fb');
-
-          // disable both
           wrap.querySelectorAll('button').forEach(b => b.disabled = true);
 
           if (v === "yes") {
@@ -671,29 +670,24 @@
 
       const displayName = muni?.name || slug;
 
-      // UI labels
       headerTitle.textContent = `Ukázka pro obec: ${displayName}`;
       headerSub.textContent = "Zeptejte se na kontakty, úřední hodiny, odpady, poplatky…";
 
       tabTitle.textContent = displayName;
       tabSub.textContent = "Klikněte a napište dotaz…";
 
-      // accent + bg
       if (muni?.theme?.primary) setAccent(muni.theme.primary);
+
       await setBackgroundForSlug(slug);
 
-      // greeting in chat
       chat.innerHTML = '';
       add('ai', `Dobrý den 👋 Jsem ukázkový AI asistent pro obec ${displayName}. Jak vám mohu pomoci?`);
-
-      // open by default? (ne) – necháme intercom-style
     }
 
     async function ask(q) {
       const msg = (q ?? inp.value).trim();
       if (!msg) return;
 
-      // user message
       add('user', msg);
       inp.value = '';
       sendBtn.disabled = true;
@@ -725,7 +719,6 @@
             localStorage.setItem(THREAD_KEY(), threadId);
           }
 
-          // after successful answer increment count
           userQCount += 1;
           if (userQCount >= 2) showFeedbackCard();
         }
@@ -750,7 +743,6 @@
       el.addEventListener('click', () => ask(el.getAttribute('data-q')));
     });
 
-    // init
     init();
   </script>
 </body>
