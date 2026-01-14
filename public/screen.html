@@ -25,7 +25,7 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.25);
+      background: rgba(0,0,0,0.35);
       pointer-events: none;
     }
 
@@ -36,7 +36,7 @@
       width: 380px;
       height: 560px;
       border: none;
-      border-radius: 16px;
+      border-radius: 18px;
       box-shadow: 0 20px 60px rgba(0,0,0,.45);
       background: transparent;
       z-index: 10;
@@ -55,25 +55,28 @@
 
 <body>
 
-  <!-- Chat – reálně běží -->
-  <iframe id="chat"></iframe>
+  <!-- Chat -->
+  <iframe id="chat" loading="lazy"></iframe>
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    const obec = params.get("obec") || "radim";
+    const obec = (params.get("obec") || "radim").toLowerCase();
 
-    // TADY jen vyměníš obrázek (screenshot webu obce)
-    const backgrounds = {
-      radim: "/skins/radim/bg.jpg",
-      zeleznice: "/skins/zeleznice/bg.jpg"
+    const FALLBACK = "/skins/radim/bg.jpg";
+    const bgUrl = `/skins/${obec}/bg.jpg`;
+
+    // zkusí načíst obrázek obce, když selže → radim
+    const img = new Image();
+    img.onload = () => {
+      document.body.style.backgroundImage = `url(${bgUrl})`;
     };
+    img.onerror = () => {
+      document.body.style.backgroundImage = `url(${FALLBACK})`;
+    };
+    img.src = bgUrl;
 
-    document.body.style.backgroundImage =
-      `url(${backgrounds[obec] || backgrounds.radim})`;
-
-    // iframe ukazuje normální chat UI
-    document.getElementById("chat").src =
-      `/?obec=${obec}`;
+    // iframe s chatem (HLAVNÍ APP)
+    document.getElementById("chat").src = `/?obec=${obec}`;
   </script>
 
 </body>
