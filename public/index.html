@@ -8,94 +8,96 @@
   <style>
     :root{
       --accent:#00E5FF;
-      --accentSoft: rgba(0,229,255,.18);
-      --text:#e8eefc;
-      --muted: rgba(232,238,252,.72);
-      --glass: rgba(10,16,28,.55);
-      --glass2: rgba(10,16,28,.35);
+      --text:#eaf1ff;
+      --muted:rgba(234,241,255,.72);
+
+      --overlay: rgba(8, 12, 20, .30);
+      --overlay2: rgba(8, 12, 20, .46);
+
       --stroke: rgba(255,255,255,.12);
-      --shadow: 0 24px 70px rgba(0,0,0,.55);
+
+      --shadow: 0 30px 90px rgba(0,0,0,.55);
+      --bubbleShadow: 0 14px 40px rgba(0,0,0,.28);
+
       --radius: 18px;
     }
 
-    html,body{ height:100%; }
+    html,body{height:100%;}
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Arial, sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color: var(--text);
       background: #0b1220;
+      overflow-x:hidden;
       -webkit-text-size-adjust: 100%;
-      overflow-x: hidden;
     }
 
-    /* ===== Page background (image + subtle overlays) ===== */
+    /* ===== Background ===== */
     .bg{
       position: fixed;
       inset: 0;
-      z-index: 0;
-      background: #0b1220;
+      z-index:0;
+      background:
+        radial-gradient(1200px 700px at 25% 0%, rgba(0,229,255,.14), transparent 60%),
+        radial-gradient(900px 600px at 80% 15%, rgba(255,255,255,.06), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0)),
+        #0b1220;
     }
     .bgImg{
       position:absolute; inset:0;
       background-size: cover;
       background-position: center;
-      background-repeat:no-repeat;
+      opacity:.92;
+      transform: scale(1.03);
       filter: saturate(1.02) contrast(1.02);
-      opacity: .92;
-      transform: scale(1.02);
     }
-    /* jemný gradient overlay (ne tak agresivní jako dřív) */
-    .bgOverlay{
+    .bgShade{
       position:absolute; inset:0;
       background:
-        radial-gradient(1200px 700px at 25% 0%, rgba(0,229,255,.14), transparent 60%),
-        radial-gradient(900px 600px at 80% 15%, rgba(255,255,255,.06), transparent 55%),
-        linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55));
-      pointer-events:none;
-    }
-    .bgVignette{
-      position:absolute; inset:0;
-      background: radial-gradient(1200px 900px at 30% 20%, transparent 45%, rgba(0,0,0,.60) 100%);
+        radial-gradient(1200px 900px at 30% 20%, transparent 40%, rgba(0,0,0,.55) 100%),
+        linear-gradient(90deg, rgba(11,18,32,.82), rgba(11,18,32,.35));
       pointer-events:none;
     }
 
-    /* ===== Top hint card (optional) ===== */
-    .hintWrap{
+    /* ===== Optional top note (you can delete this whole block later) ===== */
+    .topNote{
       position: relative;
-      z-index: 1;
-      max-width: 1060px;
+      z-index:1;
+      max-width: 1100px;
       margin: 18px auto 0;
       padding: 0 18px;
+      display:flex;
+      justify-content:flex-start;
     }
-    .hint{
+    .noteCard{
       display:flex;
       gap:12px;
       align-items:flex-start;
       padding: 14px 16px;
-      border:1px solid var(--stroke);
+      border: 1px solid var(--stroke);
       border-radius: 16px;
-      background: rgba(10,16,28,.55);
-      backdrop-filter: blur(8px);
-      box-shadow: var(--shadow);
+      background: rgba(10,16,28,.45);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
     }
-    .hint .dot{
+    .noteBadge{
       width: 38px; height: 38px;
       border-radius: 14px;
       display:flex; align-items:center; justify-content:center;
       background: rgba(0,229,255,.12);
       border: 1px solid rgba(0,229,255,.20);
-      flex: 0 0 auto;
       font-weight: 900;
+      flex: 0 0 auto;
     }
-    .hint .t{ min-width:0; }
-    .hint .t .h{ font-weight: 800; letter-spacing: .2px; }
-    .hint .t .s{
-      margin-top: 4px;
+    .noteTxt{min-width:0;}
+    .noteTxt b{letter-spacing:.2px;}
+    .noteTxt .s{
+      margin-top:4px;
       color: var(--muted);
       font-size: 13px;
       line-height: 1.35;
     }
-    .hint code{
+    .noteTxt code{
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.08);
       padding: 2px 6px;
@@ -103,11 +105,11 @@
       font-size: 12px;
     }
 
-    /* ===== Floating Tab "Poradíme vám" ===== */
+    /* ===== Side Tab "Poradíme vám" ===== */
     .tab{
       position: fixed;
       right: 14px;
-      bottom: 22px;
+      bottom: calc(18px + env(safe-area-inset-bottom));
       z-index: 50;
       display:flex;
       align-items:center;
@@ -115,8 +117,8 @@
       padding: 10px 12px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.14);
-      background: rgba(10,16,28,.62);
-      backdrop-filter: blur(10px);
+      background: rgba(10,16,28,.60);
+      backdrop-filter: blur(12px);
       box-shadow: 0 18px 50px rgba(0,0,0,.48);
       cursor:pointer;
       user-select:none;
@@ -130,8 +132,8 @@
       border-radius: 999px;
       display:flex;
       align-items:center;
-      font-weight: 800;
-      background: linear-gradient(180deg, rgba(0,229,255,.18), rgba(0,229,255,.10));
+      font-weight: 900;
+      background: linear-gradient(180deg, rgba(0,229,255,.20), rgba(0,229,255,.10));
       border: 1px solid rgba(0,229,255,.25);
     }
     .tab .mini{
@@ -140,65 +142,74 @@
       line-height:1.1;
       max-width: 220px;
     }
-    .tab .mini .a{ font-weight: 800; font-size: 12px; }
+    .tab .mini .a{ font-weight: 900; font-size: 12px; }
     .tab .mini .b{ font-size: 11px; color: var(--muted); white-space: nowrap; overflow:hidden; text-overflow: ellipsis; }
 
-    .tab.blink{ animation: pulse 1.8s infinite ease-in-out; }
+    .tab.blink{
+      animation: pulse 1.8s infinite ease-in-out;
+    }
     @keyframes pulse{
       0%,100%{ box-shadow: 0 18px 50px rgba(0,0,0,.48); }
       50%{ box-shadow: 0 18px 50px rgba(0,229,255,.22); }
     }
 
-    /* ===== Chat Panel ===== */
-    .panel{
+    /* ===== Chat Overlay Shell (NO big frame) ===== */
+    .shell{
       position: fixed;
       right: 14px;
       bottom: 14px;
-      width: 390px;
-      height: 620px;
+      width: 410px;
+      height: 640px;
       max-height: calc(100dvh - 28px);
-      z-index: 60;
-
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(10,16,28,.62);
-      backdrop-filter: blur(12px);
-      box-shadow: var(--shadow);
+      z-index: 70;
 
       display:none;
       overflow:hidden;
-    }
-    .panel.open{ display:flex; flex-direction:column; }
+      border-radius: 24px;
 
-    .panelHeader{
-      padding: 12px 12px 10px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.03);
+      /* instead of a "frame", we use a soft overlay + blur */
+      background: linear-gradient(180deg, rgba(8,12,20,.24), rgba(8,12,20,.45));
+      backdrop-filter: blur(14px);
+
+      /* no visible border like a box */
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: var(--shadow);
+    }
+    .shell.open{ display:flex; flex-direction:column; }
+
+    /* Header minimal, like "floating bar" */
+    .bar{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
+
+      padding: 12px 12px 10px;
+      background: rgba(255,255,255,.03);
+      border-bottom: 1px solid rgba(255,255,255,.08);
     }
-    .phLeft{ display:flex; align-items:center; gap:10px; min-width:0; }
-    .badgeIcon{
+    .barLeft{
+      display:flex; align-items:center; gap:10px; min-width:0;
+    }
+    .mark{
       width: 34px; height: 34px;
-      border-radius: 12px;
+      border-radius: 999px;
       display:flex; align-items:center; justify-content:center;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,229,255,.12);
+      border: 1px solid rgba(0,229,255,.22);
       font-weight: 900;
       flex:0 0 auto;
     }
-    .phTitleWrap{ min-width:0; }
-    .phTitle{
-      font-weight: 900;
+    .barTxt{min-width:0;}
+    .barTitle{
+      font-weight: 950;
       font-size: 13px;
       white-space: nowrap;
       overflow:hidden;
       text-overflow: ellipsis;
       max-width: 250px;
     }
-    .phSub{
+    .barSub{
       margin-top: 2px;
       font-size: 12px;
       color: var(--muted);
@@ -207,13 +218,14 @@
       text-overflow: ellipsis;
       max-width: 250px;
     }
-    .phRight{ display:flex; align-items:center; gap:8px; }
+
+    .barRight{ display:flex; align-items:center; gap:8px; }
     .chip{
       font-size: 11px;
       padding: 5px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
     }
     .iconBtn{
       width: 34px; height: 34px;
@@ -227,14 +239,15 @@
     }
     .iconBtn:hover{ background: rgba(255,255,255,.07); }
 
-    /* ===== Quick pills ===== */
+    /* Pills top */
     .pillbar{
-      padding: 10px 12px 2px;
+      padding: 10px 12px 0;
       display:flex;
       gap:8px;
       flex-wrap:wrap;
+      background: transparent;
     }
-    .pill{
+    .pillQ{
       font-size: 12px;
       padding: 7px 10px;
       border-radius: 999px;
@@ -243,9 +256,9 @@
       cursor:pointer;
       user-select:none;
     }
-    .pill:hover{ background: rgba(255,255,255,.07); }
+    .pillQ:hover{ background: rgba(255,255,255,.07); }
 
-    /* ===== Chat body (transparent, no frame) ===== */
+    /* ===== Chat area (transparent) ===== */
     .chat{
       flex: 1 1 auto;
       padding: 12px 12px 8px;
@@ -253,36 +266,45 @@
       background: transparent;
     }
 
+    /* Message layout: only bubbles have borders (like Jičín) */
     .msg{ display:flex; margin: 10px 0; }
     .msg.user{ justify-content:flex-end; }
+
     .bubble{
-      max-width: 84%;
+      max-width: 86%;
       padding: 10px 12px;
-      border-radius: 16px;
+      border-radius: 18px;
       line-height: 1.35;
       font-size: 13px;
       word-break: break-word;
-      border: 1px solid rgba(255,255,255,.12);
+
+      border: 1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.05);
-      box-shadow: 0 10px 30px rgba(0,0,0,.22);
+      box-shadow: var(--bubbleShadow);
     }
+
     .msg.ai .bubble{
       border-color: rgba(0,229,255,.18);
       background: rgba(0,229,255,.08);
     }
     .msg.user .bubble{
-      border-color: rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.16);
+      background: rgba(255,255,255,.07);
     }
+
     .bubble a{ color: var(--accent); text-decoration:none; }
     .bubble a:hover{ text-decoration:underline; }
 
-    /* typing dots */
-    .typing{ display:inline-flex; gap:6px; align-items:center; }
+    /* typing dots (animated) */
+    .typing{
+      display:inline-flex;
+      gap:6px;
+      align-items:center;
+    }
     .typing span{
       width: 7px; height: 7px;
       border-radius: 999px;
-      background: rgba(232,238,252,.85);
+      background: rgba(234,241,255,.90);
       opacity: .35;
       animation: bounce 1s infinite ease-in-out;
     }
@@ -293,61 +315,63 @@
       50%{ transform: translateY(-4px); opacity: 1; }
     }
 
-    /* feedback card */
+    /* Feedback block */
     .feedback{
       max-width: 92%;
       padding: 12px;
-      border-radius: 16px;
+      border-radius: 18px;
       border: 1px solid rgba(255,255,255,.14);
-      background: rgba(10,16,28,.55);
-      backdrop-filter: blur(8px);
+      background: rgba(8,12,20,.42);
+      backdrop-filter: blur(10px);
     }
-    .feedback .q{ font-weight: 900; margin-bottom: 8px; }
+    .feedback .q{ font-weight: 950; margin-bottom: 8px; }
     .feedback .btns{ display:flex; gap:10px; }
     .fbBtn{
       flex: 1;
       padding: 9px 10px;
-      border-radius: 12px;
+      border-radius: 14px;
       border: 1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.06);
       color: var(--text);
-      font-weight: 800;
+      font-weight: 900;
       cursor:pointer;
     }
     .fbBtn.yes{
-      border-color: rgba(0,229,255,.25);
+      border-color: rgba(0,229,255,.26);
       background: rgba(0,229,255,.10);
     }
     .fbBtn:hover{ background: rgba(255,255,255,.09); }
+    .fbBtn:disabled{ opacity:.6; cursor:not-allowed; }
 
-    /* ===== Input row ===== */
+    /* Input row - modern, no big bottom bar */
     .inputRow{
       padding: 10px 12px 12px;
+      background: rgba(255,255,255,.02);
       border-top: 1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.03);
       display:flex;
       gap:10px;
       align-items:center;
     }
     .input{
       flex: 1;
-      height: 44px;
+      height: 46px;
       padding: 0 14px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.14);
       background: rgba(0,0,0,.18);
       color: var(--text);
       outline:none;
-      font-size: 16px; /* iOS zoom fix */
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+
+      /* iOS zoom fix */
+      font-size: 16px;
     }
     .send{
-      width: 44px; height: 44px;
-      border-radius: 14px;
-      border: 1px solid rgba(0,229,255,.28);
+      width: 46px; height: 46px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,229,255,.30);
       background: rgba(0,229,255,.12);
       color: var(--text);
-      font-weight: 900;
+      font-weight: 1000;
       cursor:pointer;
       display:flex; align-items:center; justify-content:center;
       user-select:none;
@@ -357,26 +381,22 @@
     .foot{
       padding: 0 12px 10px;
       font-size: 11px;
-      color: rgba(232,238,252,.58);
-      min-height: 14px;
+      color: rgba(234,241,255,.58);
     }
 
-    /* ===== Mobile ===== */
+    /* Mobile */
     @media (max-width: 520px){
-      .panel{
+      .shell{
         right: 10px;
         left: 10px;
         width: auto;
         height: calc(100dvh - 20px);
         bottom: 10px;
-        border-radius: 18px;
+        border-radius: 20px;
       }
-      .phTitle{ max-width: 190px; }
-      .phSub{ max-width: 190px; }
-      .tab{
-        right: 10px;
-        bottom: calc(14px + env(safe-area-inset-bottom));
-      }
+      .barTitle{ max-width: 190px; }
+      .barSub{ max-width: 190px; }
+      .tab{ right: 10px; }
     }
   </style>
 </head>
@@ -384,24 +404,23 @@
 <body>
   <div class="bg" aria-hidden="true">
     <div class="bgImg" id="bgImg"></div>
-    <div class="bgOverlay"></div>
-    <div class="bgVignette"></div>
+    <div class="bgShade"></div>
   </div>
 
-  <div class="hintWrap">
-    <div class="hint">
-      <div class="dot">AI</div>
-      <div class="t">
-        <div class="h">AI asistent obce – DEMO</div>
+  <div class="topNote">
+    <div class="noteCard">
+      <div class="noteBadge">AI</div>
+      <div class="noteTxt">
+        <b>AI asistent obce – DEMO</b>
         <div class="s">
-          Otevřete chat přes boční lištu <b>„Poradíme vám“</b>. Přepnutí obce přes URL:
+          Otevřete chat boční lištou <b>„Poradíme vám“</b>. Přepnutí obce přes URL:
           <code>?obec=hradec-kralove</code> / <code>?obec=radim</code> / <code>?obec=zeleznice</code>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Boční lišta -->
+  <!-- Side tab -->
   <div class="tab blink" id="openTab" role="button" aria-label="Otevřít chat">
     <div class="pill">Poradíme vám</div>
     <div class="mini">
@@ -410,17 +429,18 @@
     </div>
   </div>
 
-  <!-- Chat panel -->
-  <div class="panel" id="panel" aria-live="polite">
-    <div class="panelHeader">
-      <div class="phLeft">
-        <div class="badgeIcon" id="badgeIcon">AI</div>
-        <div class="phTitleWrap">
-          <div class="phTitle" id="headerTitle">Ukázka pro obec</div>
-          <div class="phSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny…</div>
+  <!-- Chat shell (modern overlay, no heavy frame) -->
+  <div class="shell" id="shell" aria-live="polite">
+    <div class="bar">
+      <div class="barLeft">
+        <div class="mark" id="mark">AI</div>
+        <div class="barTxt">
+          <div class="barTitle" id="headerTitle">Ukázka pro obec</div>
+          <div class="barSub" id="headerSub">Zeptejte se na kontakty, úřední hodiny…</div>
         </div>
       </div>
-      <div class="phRight">
+
+      <div class="barRight">
         <div class="chip">DEMO</div>
         <button class="iconBtn" id="resetBtn" title="Reset">↻</button>
         <button class="iconBtn" id="closeBtn" title="Zavřít">✕</button>
@@ -428,11 +448,11 @@
     </div>
 
     <div class="pillbar">
-      <span class="pill" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
-      <span class="pill" data-q="Jaký je kontakt na úřad?">Kontakt</span>
-      <span class="pill" data-q="Kde je bioodpad a kdy je otevřeno?">Bioodpad</span>
-      <span class="pill" data-q="Jak se platí poplatek za odpad?">Poplatek za odpad</span>
-      <span class="pill" data-q="Kde na webu najdu úřední desku?">Úřední deska</span>
+      <span class="pillQ" data-q="Jaké jsou úřední hodiny?">Úřední hodiny</span>
+      <span class="pillQ" data-q="Jaký je kontakt na úřad?">Kontakt</span>
+      <span class="pillQ" data-q="Kde je bioodpad a kdy je otevřeno?">Bioodpad</span>
+      <span class="pillQ" data-q="Jak se platí poplatek za odpad?">Poplatek za odpad</span>
+      <span class="pillQ" data-q="Kde na webu najdu úřední desku?">Úřední deska</span>
     </div>
 
     <div class="chat" id="chat"></div>
@@ -441,12 +461,13 @@
       <input class="input" id="inp" type="text" placeholder="Napište dotaz…" autocomplete="off" />
       <button class="send" id="send" type="button">➤</button>
     </div>
+
     <div class="foot" id="status"></div>
   </div>
 
   <script>
     const openTab = document.getElementById('openTab');
-    const panel = document.getElementById('panel');
+    const shell = document.getElementById('shell');
     const closeBtn = document.getElementById('closeBtn');
     const resetBtn = document.getElementById('resetBtn');
 
@@ -459,24 +480,21 @@
     const headerSub = document.getElementById('headerSub');
     const tabTitle = document.getElementById('tabTitle');
     const tabSub = document.getElementById('tabSub');
-    const badgeIcon = document.getElementById('badgeIcon');
+    const mark = document.getElementById('mark');
 
     const bgImg = document.getElementById('bgImg');
 
-    // ===== Helpers =====
-    function getParam(name) {
+    function getParam(name){
       const u = new URL(window.location.href);
       return u.searchParams.get(name);
     }
-    function normalizeSlug(value) {
+    function normalizeSlug(value){
       if (!value) return "";
       return value.toLowerCase().trim()
         .replace(/\s+/g, "-")
         .replace(/[^a-z0-9\-]/g, "");
     }
-
-    // preferuj ?obec= (a ignoruj /skins/ v path)
-    function inferSlug() {
+    function inferSlug(){
       const q = normalizeSlug(getParam("obec"));
       if (q) return q;
 
@@ -487,7 +505,7 @@
       return normalizeSlug(parts[0]) || "radim";
     }
 
-    function linkify(text) {
+    function linkify(text){
       const urlRegex = /(https?:\/\/[^\s)]+)\b/g;
       return String(text).replace(urlRegex, (url) => {
         const safe = url.replace(/"/g, "%22");
@@ -495,11 +513,11 @@
       });
     }
 
-    function add(role, htmlOrText, opts={}) {
+    function add(role, htmlOrText, opts = {}){
       const wrap = document.createElement('div');
       wrap.className = 'msg ' + (role === 'user' ? 'user' : 'ai');
 
-      if (opts.type === "feedback") {
+      if (opts.type === "feedback"){
         wrap.innerHTML = htmlOrText;
       } else {
         const b = document.createElement('div');
@@ -513,7 +531,7 @@
       return wrap;
     }
 
-    function addTyping() {
+    function addTyping(){
       const wrap = document.createElement('div');
       wrap.className = 'msg ai';
       const b = document.createElement('div');
@@ -527,8 +545,8 @@
       return wrap;
     }
 
-    async function loadRegistry() {
-      try {
+    async function loadRegistry(){
+      try{
         const res = await fetch('/registry/municipalities.json', { cache: 'no-store' });
         if (!res.ok) return null;
         return await res.json();
@@ -536,8 +554,7 @@
         return null;
       }
     }
-
-    function pickMunicipality(reg, slug) {
+    function pickMunicipality(reg, slug){
       if (!reg) return null;
       if (Array.isArray(reg)) return reg.find(m => m && (m.slug === slug || m.id === slug)) || null;
       if (Array.isArray(reg.municipalities)) return reg.municipalities.find(m => m && (m.slug === slug || m.id === slug)) || null;
@@ -545,58 +562,25 @@
       return null;
     }
 
-    function setAccent(color) {
+    function setAccent(color){
       if (!color) return;
       document.documentElement.style.setProperty('--accent', color);
     }
 
-    function tryLoadImage(url) {
-      return new Promise((resolve) => {
-        const img = new Image();
-        // cache bust aby se po deploy chytil nový soubor
-        img.src = url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now();
-        img.onload = () => resolve(url);
-        img.onerror = () => resolve(null);
-      });
+    // ✅ IMPORTANT: no HEAD fetch. Uses Image preload.
+    function setBackgroundForSlug(slug){
+      const url = `/skins/${slug}/bg.jpg`;
+      const img = new Image();
+      img.onload = () => { bgImg.style.backgroundImage = `url('${url}')`; };
+      img.onerror = () => {
+        bgImg.style.backgroundImage = '';
+        console.warn('Pozadí nenalezeno:', url);
+      };
+      img.src = url;
     }
 
-    async function setBackgroundForSlug(slug) {
-      // aliasy pro jistotu (kdyby někdo psal ?obec=hradec)
-      const aliases = [];
-      if (slug === "hradec") aliases.push("hradec-kralove");
-      if (slug === "hk") aliases.push("hradec-kralove");
-
-      const pool = [slug, ...aliases];
-
-      const candidates = [];
-      for (const s of pool) {
-        candidates.push(`/skins/${s}/bg.jpg`);
-        candidates.push(`/skins/${s}.jpg`);
-        candidates.push(`/skins/${s}/bg.png`);
-        candidates.push(`/skins/${s}.png`);
-        candidates.push(`/skins/${s}/bg.webp`);
-        candidates.push(`/skins/${s}.webp`);
-      }
-
-      statusEl.textContent = "Načítám pozadí…";
-
-      for (const url of candidates) {
-        const okUrl = await tryLoadImage(url);
-        if (okUrl) {
-          bgImg.style.backgroundImage = `url('${okUrl}')`;
-          statusEl.textContent = "";
-          return;
-        }
-      }
-
-      // fallback gradient only
-      bgImg.style.backgroundImage = '';
-      statusEl.textContent = "";
-    }
-
-    // ---- State
+    // ===== State =====
     let slug = inferSlug();
-
     const THREAD_KEY = () => `municipality_thread_id_v4_${slug}`;
     let threadId = localStorage.getItem(THREAD_KEY()) || null;
 
@@ -606,34 +590,35 @@
     let userQCount = 0;
     let feedbackShown = false;
 
-    function openPanel() {
-      panel.classList.add('open');
+    function openChat(){
+      shell.classList.add('open');
       openTab.classList.remove('blink');
       openTab.style.display = 'none';
       setTimeout(() => inp.focus(), 50);
     }
-    function closePanel() {
-      panel.classList.remove('open');
+    function closeChat(){
+      shell.classList.remove('open');
       openTab.style.display = 'flex';
       openTab.classList.add('blink');
     }
-
-    function resetConversation() {
+    function resetConversation(){
       localStorage.removeItem(THREAD_KEY());
       threadId = null;
       userQCount = 0;
       feedbackShown = false;
       chat.innerHTML = '';
+
       const name = muni?.name || slug;
       add('ai', `Resetováno. Zeptejte se znovu (obec: ${name}).`);
       inp.focus();
     }
 
-    function showFeedbackCard() {
+    function showFeedbackCard(){
       if (feedbackShown) return;
       feedbackShown = true;
 
       const phone = muni?.contact_phone || muni?.phone || muni?.tel || null;
+      const name = muni?.name || slug;
 
       const html = `
         <div class="feedback">
@@ -652,7 +637,7 @@
           const v = btn.getAttribute('data-fb');
           wrap.querySelectorAll('button').forEach(b => b.disabled = true);
 
-          if (v === "yes") {
+          if (v === "yes"){
             add('ai', `Super, jsem rád, že jsem pomohl ✅ Kdykoliv se zeptejte znovu.`);
           } else {
             const extra = phone
@@ -664,7 +649,7 @@
       });
     }
 
-    async function init() {
+    async function init(){
       regCache = await loadRegistry();
       muni = pickMunicipality(regCache, slug);
 
@@ -678,13 +663,13 @@
 
       if (muni?.theme?.primary) setAccent(muni.theme.primary);
 
-      await setBackgroundForSlug(slug);
+      setBackgroundForSlug(slug);
 
       chat.innerHTML = '';
       add('ai', `Dobrý den 👋 Jsem ukázkový AI asistent pro obec ${displayName}. Jak vám mohu pomoci?`);
     }
 
-    async function ask(q) {
+    async function ask(q){
       const msg = (q ?? inp.value).trim();
       if (!msg) return;
 
@@ -694,27 +679,23 @@
 
       const typingEl = addTyping();
 
-      try {
+      try{
         const res = await fetch('/.netlify/functions/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: msg,
-            thread_id: threadId,
-            obec: slug
-          })
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ message: msg, thread_id: threadId, obec: slug })
         });
 
         const data = await res.json().catch(() => ({}));
-        if (typingEl) typingEl.remove();
+        typingEl.remove();
 
-        if (!res.ok || !data.ok) {
+        if (!res.ok || !data.ok){
           add('ai', 'Omlouvám se, teď se mi nepodařilo odpovědět. Zkuste to prosím znovu.');
         } else {
           const answer = (data.answer || '').trim();
           add('ai', answer || 'Omlouvám se, nepodařilo se mi najít odpověď.');
 
-          if (data.thread_id) {
+          if (data.thread_id){
             threadId = data.thread_id;
             localStorage.setItem(THREAD_KEY(), threadId);
           }
@@ -722,8 +703,8 @@
           userQCount += 1;
           if (userQCount >= 2) showFeedbackCard();
         }
-      } catch (e) {
-        if (typingEl) typingEl.remove();
+      } catch(e){
+        typingEl.remove();
         add('ai', 'Omlouvám se, došlo k chybě připojení. Zkuste to prosím znovu.');
       } finally {
         sendBtn.disabled = false;
@@ -731,9 +712,9 @@
       }
     }
 
-    // ===== Events =====
-    openTab.addEventListener('click', openPanel);
-    closeBtn.addEventListener('click', closePanel);
+    // Events
+    openTab.addEventListener('click', openChat);
+    closeBtn.addEventListener('click', closeChat);
     resetBtn.addEventListener('click', resetConversation);
 
     sendBtn.addEventListener('click', () => ask());
